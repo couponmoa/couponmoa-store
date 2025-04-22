@@ -59,7 +59,7 @@ public class UserServiceV1 {
         user.setDeletedAt(LocalDateTime.now());
     }
 
-    private User getUserById(Long userId) {
+    public User getUserById(Long userId) {
         return userRepository.findByIdOrElseThrow(userId, ErrorCode.USER_NOT_FOUND);
     }
 
