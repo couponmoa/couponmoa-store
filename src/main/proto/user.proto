@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.couponmoa.grpc.user";  // Java 패키지 경로
+option java_outer_classname = "UserProto";
+
+package user;
+
+service UserService {
+  rpc FindById(UserIdRequest) returns (UserResponse); // userId로 user 조회하는 메서드
+}
+
+message UserIdRequest {
+  int64 userId = 1;
+}
+
+message UserResponse {
+  int64 id = 1;
+  string email = 2;
+  string nickname = 3;
+  string userRole = 4;
+  string deletedAt = 5; // LocalDateTime이 없어서 String으로 포맷
+}
