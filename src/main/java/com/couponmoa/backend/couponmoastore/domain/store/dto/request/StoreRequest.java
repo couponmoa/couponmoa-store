@@ -1,0 +1,21 @@
+package com.couponmoa.backend.couponmoastore.domain.store.dto.request;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter //테스트 용도
+@NoArgsConstructor
+public class StoreRequest {
+
+    private String name;
+    private String description;
+    private String address;
+
+    public StoreRequest(String name, String description, String address) {
+        this.name = name;
+        this.description = description;
+        this.address = address;
+    }
+}
