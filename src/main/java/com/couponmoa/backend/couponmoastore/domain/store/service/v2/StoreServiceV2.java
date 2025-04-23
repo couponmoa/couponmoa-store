@@ -44,11 +44,7 @@ public class StoreServiceV2 {
             throw new ApplicationException(USER_NOT_FOUND);
         }
 
-        UserResponse user = userGrpcClient.getUserById(userId);
-
-        if (!user.getUserRole().equals("ROLE_ADMIN")) {
-            throw new ApplicationException(FORBIDDEN_ADMIN_ONLY);
-        }
+        isAdmin(userId);
 
         // 동일한 이름의 스토어가 이미 존재하는지 확인
         validateStoreNameUniqueness(null,request.getName(),false);
@@ -62,6 +58,14 @@ public class StoreServiceV2 {
         Store savedStore = storeRepository.save(store);
 
         return StoreResponse.toDto(savedStore);
+    }
+
+    private void isAdmin(Long userId) {
+        UserResponse user = userGrpcClient.getUserById(userId);
+
+        if (!user.getUserRole().equals("ROLE_ADMIN")) {
+            throw new ApplicationException(FORBIDDEN_ADMIN_ONLY);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -104,6 +108,7 @@ public class StoreServiceV2 {
     @Transactional
     @CacheEvict(value = "stores", allEntries = true)
     public StoreResponse updateStore(Long storeId, StoreRequest request, Long userId) {
+        isAdmin(userId);
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
         validateStoreOwner(store, userId);
 
@@ -120,6 +125,7 @@ public class StoreServiceV2 {
     @Transactional
     @CacheEvict(value = "stores", allEntries = true)
     public void deleteStore(Long storeId, Long userId) {
+        isAdmin(userId);
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
         validateStoreOwner(store, userId);
 

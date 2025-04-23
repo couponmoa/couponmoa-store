@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+//import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class UserStoreSubscribeController {
 
     @Operation(summary = "가게 구독", description = "유저가 특정 가게을 구독함")
     @PostMapping("/{storeId}/subscriptions")
-    public ResponseEntity<ApiResponse<Void>> subscribeStore(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> subscribeStore(@RequestHeader("X-User-Id") Long userId,
                                                             @Parameter(description = "구독할 가게 id", required = true)
                                                              @PathVariable Long storeId) {
         userStoreSubServ.subscribeStore(userId, storeId);
@@ -33,7 +33,7 @@ public class UserStoreSubscribeController {
 
     @Operation(summary = "가게 구독 취소", description = "유저가 특정 가게 구독을 취소함")
     @PostMapping("/{storeId}/unsubscriptions")
-    public ResponseEntity<ApiResponse<Void>> unsubscribeStore(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> unsubscribeStore(@RequestHeader("X-User-Id") Long userId,
                                                                @Parameter(description = "구독할 가게 id", required = true)
                                                                @PathVariable Long storeId) {
         userStoreSubServ.unSubscribeCoupon(userId, storeId);
@@ -43,7 +43,7 @@ public class UserStoreSubscribeController {
 
     @Operation(summary = "내 가게 구독 목록 확인", description = "가게 구독 목록 확인")
     @GetMapping("/subscriptions")
-    public ResponseEntity<ApiResponse<List<FindStoreSubscribeListResponse>>> findStoreSubscribeList(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<List<FindStoreSubscribeListResponse>>> findStoreSubscribeList(@RequestHeader("X-User-Id") Long userId,
                                                                                                     @RequestParam(defaultValue = "0") int page,
                                                                                                     @RequestParam(defaultValue = "10") int size) {
         List<FindStoreSubscribeListResponse> subscribeList = userStoreSubServ.findSubscribeList(userId, page, size);

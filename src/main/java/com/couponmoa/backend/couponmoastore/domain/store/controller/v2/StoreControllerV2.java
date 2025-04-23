@@ -11,8 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,11 +25,11 @@ public class StoreControllerV2 {
     private final StoreServiceV2 storeServiceV2;
 
     @Operation(summary = "스토어 생성", description = "사용자가 새로운 스토어를 생성함")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<StoreResponse>> createStore(
             @Valid @RequestBody StoreRequest request,
-            @AuthenticationPrincipal Long userId) {
+            @RequestHeader("X-User-Id") Long userId) {
 
         StoreResponse response = storeServiceV2.createStore(request, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -54,7 +53,7 @@ public class StoreControllerV2 {
     @Operation(summary = "내 스토어 목록 조회", description = "현재 로그인한 유저의 스토어들을 반환함")
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<StoreResponse>>> findMyStores(
-            @AuthenticationPrincipal Long userId) {
+            @RequestHeader("X-User-Id") Long userId) {
 
         List<StoreResponse> stores = storeServiceV2.findMyStores(userId);
         return ResponseEntity.ok(ApiResponse.success(stores));
@@ -79,23 +78,23 @@ public class StoreControllerV2 {
     }
 
     @Operation(summary = "스토어 수정", description = "사용자가 자신의 스토어 정보를 수정함")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{storeId}")
     public ResponseEntity<ApiResponse<StoreResponse>> updateStore(
             @PathVariable Long storeId,
             @Valid @RequestBody StoreRequest request,
-            @AuthenticationPrincipal Long userId) {
+            @RequestHeader("X-User-Id") Long userId) {
 
         StoreResponse updatedStore = storeServiceV2.updateStore(storeId, request, userId);
         return ResponseEntity.ok(ApiResponse.success(updatedStore));
     }
 
     @Operation(summary = "스토어 삭제", description = "사용자가 자신의 스토어를 삭제함")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{storeId}")
     public ResponseEntity<Void> deleteStore(
             @PathVariable Long storeId,
-            @AuthenticationPrincipal Long userId) {
+            @RequestHeader("X-User-Id") Long userId) {
 
         storeServiceV2.deleteStore(storeId, userId);
         return ResponseEntity.noContent().build();
