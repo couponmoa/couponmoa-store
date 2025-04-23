@@ -38,11 +38,6 @@ public class JwtUtil {
     private String secretKey;
     private SecretKey key;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @PostConstruct
     public void init() {
         log.info(">>> Loaded secret key: {}", secretKey);
