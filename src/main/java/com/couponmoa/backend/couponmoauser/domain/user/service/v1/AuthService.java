@@ -2,7 +2,6 @@ package com.couponmoa.backend.couponmoauser.domain.user.service.v1;
 
 import com.couponmoa.backend.couponmoauser.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoauser.common.exception.ErrorCode;
-import com.couponmoa.backend.couponmoauser.common.service.RedisService;
 import com.couponmoa.backend.couponmoauser.config.JwtUtil;
 import com.couponmoa.backend.couponmoauser.domain.user.dto.request.SigninRequest;
 import com.couponmoa.backend.couponmoauser.domain.user.dto.request.SignupRequest;
@@ -22,7 +21,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final RedisService redisService;
 
     @Transactional
     public void signup(SignupRequest signupRequest) {

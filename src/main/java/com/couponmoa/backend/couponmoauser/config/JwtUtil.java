@@ -13,6 +13,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +38,11 @@ public class JwtUtil {
     private String secretKey;
     private SecretKey key;
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @PostConstruct
     public void init() {
         log.info(">>> Loaded secret key: {}", secretKey);
@@ -43,7 +51,7 @@ public class JwtUtil {
 
     public String createToken(Long userId, String email, UserRole userRole, Long validTime, String tokenType) {
         Date date = new Date();
-        log.info("JWT 생성 - userId: {}, email: {}, 역할: {}, 토큰 타입: {}", userId, email, userRole.name(), tokenType); //
+        log.info("JWT 생성 - userId: {}, email: {}, 역할: {}, 토큰 타입: {}", userId, email, userRole.name(), tokenType);
 
         return BEARER_PREFIX +
                 Jwts.builder()

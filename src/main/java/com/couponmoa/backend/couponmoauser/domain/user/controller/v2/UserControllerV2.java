@@ -1,15 +1,14 @@
 package com.couponmoa.backend.couponmoauser.domain.user.controller.v2;
 
 import com.couponmoa.backend.couponmoauser.common.dto.ApiResponse;
-import com.couponmoa.backend.couponmoauser.domain.user.dto.AuthUser;
 import com.couponmoa.backend.couponmoauser.domain.user.dto.response.UserResponse;
 import com.couponmoa.backend.couponmoauser.domain.user.service.v2.UserServiceV2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,8 +21,8 @@ public class UserControllerV2 {
 
     @Operation(summary = "CDN 사용 본인 정보 조회", description = "본인의 사용자 정보를 확인함")
     @GetMapping
-    public ResponseEntity<ApiResponse<UserResponse>> findUser(@AuthenticationPrincipal AuthUser authUser) {
-        UserResponse userResponse = userServiceV2.findUser(authUser.getId());
+    public ResponseEntity<ApiResponse<UserResponse>> findUser(@RequestHeader("X-User-Id") Long userId) {
+        UserResponse userResponse = userServiceV2.findUser(userId);
         return ResponseEntity.ok(ApiResponse.success(userResponse, "회원 조회 완료"));
     }
 }
