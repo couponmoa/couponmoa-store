@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    active: local
+
+grpc:
+  server:
+    port: 6565
