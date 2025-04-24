@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option java_package = "com.couponmoa.grpc.userCoupon";
+option java_multiple_files = true;
+option java_outer_classname = "UserCouponProto";
+
+package userCoupon;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "proto/coupon.proto";
+
+enum UserCouponStatus {
+  UNUSED = 0;
+  USED = 1;
+  EXPIRED = 2;
+}
+
+message UserCouponResponse {
+  int64 id = 1;
+  UserCouponStatus status = 2;
+  string name = 3;
+  string description = 4;
+  string discountAmount = 5;
+  string discountRate = 6;
+  string minOrderAmount = 7;
+  string maxDiscountAmount = 8;
+  string expiryDate = 9;
+}
+
+message UserCouponCodeResponse {
+  string code = 1;
+}
+
+message UserCouponUseResponse {
+  int64 id = 1;
+  string discountAmount = 2;
+  string discountRate = 3;
+  string name = 4;
+  string description = 5;
+  string minOrderAmount = 6;
+  string maxDiscountAmount = 7;
+}
+
+message UserCouponRequest {
+  string code = 1; // 쿠폰 코드
+}
+
+// gRPC 서비스 정의
+service UserCouponService {
+  rpc CreateUserCouponSync (CouponIdRequest) returns (google.protobuf.Empty);
+  rpc CreateUserCouponAsync (CouponIdRequest) returns (google.protobuf.Empty);
+  rpc FindUserCoupons (UserCouponsRequest) returns (UserCouponListResponse);
+  rpc FindUserCouponCode (UserCouponCodeRequest) returns (UserCouponCodeResponse);
+  rpc UseUserCoupon (UserCouponRequest) returns (UserCouponUseResponse);
+}
+
+message UserCouponsRequest {
+  int64 userId = 1;
+  UserCouponStatus status = 2;
+  int32 page = 3;
+  int32 size = 4;
+}
+
+message CouponIdRequest {
+  int64 couponId = 1;
+}
+
+message UserCouponListResponse {
+  repeated UserCouponResponse userCoupons = 1;
+}
+
+message UserCouponCodeRequest {
+  int64 userCouponId = 1;
+}
