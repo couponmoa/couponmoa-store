@@ -6,22 +6,22 @@ import lombok.Getter;
 import java.io.Serializable;
 
 @Getter
-public class StoreResponse implements Serializable {
+public class StoreResponseDto implements Serializable {
 
     private final Long id;
     private final String name;
     private final String description;
     private final String address;
 
-    public StoreResponse(Long id, String name, String description, String address) {
+    public StoreResponseDto(Long id, String name, String description, String address) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.address = address;
     }
 
-    public static StoreResponse toDto(Store store) {
-        return new StoreResponse(
+    public static StoreResponseDto toDto(Store store) {
+        return new StoreResponseDto(
                 store.getId(),
                 store.getName(),
                 store.getDescription(),

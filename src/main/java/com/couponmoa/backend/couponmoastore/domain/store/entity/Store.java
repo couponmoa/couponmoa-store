@@ -30,7 +30,6 @@ public class Store extends BaseEntity {
 
     @Builder
     public Store(Long userId, String name, String description, String address) {
-//        this.user = user;
         this.userId = userId;
         this.name = name;
         this.description = description;

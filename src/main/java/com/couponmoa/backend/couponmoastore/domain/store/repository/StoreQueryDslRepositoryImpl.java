@@ -1,7 +1,7 @@
 package com.couponmoa.backend.couponmoastore.domain.store.repository;
 
 import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreCursor;
-import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponse;
+import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponseDto;
 import com.couponmoa.backend.couponmoastore.domain.store.entity.QStore;
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
 import com.querydsl.core.types.OrderSpecifier;
@@ -32,12 +32,12 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
     }
 
     @Override
-    public List<StoreResponse> searchStoresByKeyword(StoreCursor cursor, int size){
+    public List<StoreResponseDto> searchStoresByKeyword(StoreCursor cursor, int size){
         QStore store = QStore.store;
 
         return queryFactory
                 .select(Projections.constructor(
-                        StoreResponse.class,
+                        StoreResponseDto.class,
                         store.id,
                         store.name,
                         store.description,

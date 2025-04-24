@@ -3,10 +3,10 @@ package com.couponmoa.backend.couponmoastore.domain.store.service.v2;
 
 import com.couponmoa.backend.couponmoastore.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoastore.common.exception.ErrorCode;
-import com.couponmoa.backend.couponmoastore.domain.grpc.UserGrpcClient;
+import com.couponmoa.backend.couponmoastore.domain.store.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreCursor;
-import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreRequest;
-import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponse;
+import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreRequestDto;
+import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponseDto;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreSimpleResponse;
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
 import com.couponmoa.backend.couponmoastore.domain.store.repository.StoreQueryDslRepository;
@@ -37,7 +37,7 @@ public class StoreServiceV2 {
 
     @Transactional
     @CacheEvict(value = "stores", allEntries = true)
-    public StoreResponse createStore(StoreRequest request, Long userId) {
+    public StoreResponseDto createStore(StoreRequestDto request, Long userId) {
 //        User user = userRepository.findByIdOrElseThrow(userId, ErrorCode.USER_NOT_FOUND);
 
         if (userId == null) {
@@ -57,40 +57,39 @@ public class StoreServiceV2 {
         );
         Store savedStore = storeRepository.save(store);
 
-        return StoreResponse.toDto(savedStore);
-    }
-
-    private void isAdmin(Long userId) {
-        UserResponse user = userGrpcClient.getUserById(userId);
-
-        if (!user.getUserRole().equals("ROLE_ADMIN")) {
-            throw new ApplicationException(FORBIDDEN_ADMIN_ONLY);
-        }
+        return StoreResponseDto.toDto(savedStore);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "stores", key = "T(com.couponmoa.backend.couponmoastore.common.util.CacheKeyGenerator).generateCacheKey(#cursor, #size)")
     @Retry(name = "storeService", fallbackMethod = "fallbackFindStoresByKeyword")
-    public List<StoreResponse> findStoresByKeyword(StoreCursor cursor, int size) {
+    public List<StoreResponseDto> findStoresByKeyword(StoreCursor cursor, int size) {
         return storeQueryDslRepository.searchStoresByKeyword(cursor, size);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "stores", key = "T(com.couponmoa.backend.couponmoastore.common.util.CacheKeyGenerator).generateStoreCacheKey(#storeId)")
     @Retry(name = "storeService", fallbackMethod = "fallbackFindStore")
-    public StoreResponse findStore(Long storeId) {
+    public StoreResponseDto findStore(Long storeId) {
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
-        return StoreResponse.toDto(store);
+        return StoreResponseDto.toDto(store);
     }
 
     @Transactional(readOnly = true)
-    public List<StoreResponse> findMyStores(Long userId) {
+    @Cacheable(value = "stores", key = "T(com.couponmoa.backend.couponmoastore.common.util.CacheKeyGenerator).generateStoreCacheKey(#storeId)")
+    @Retry(name = "storeService", fallbackMethod = "fallbackFindStore")
+    public Store getStoreById(Long storeId) {
+        return storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StoreResponseDto> findMyStores(Long userId) {
         if (userId == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
         List<Store> stores = storeRepository.findByUserIdAndDeletedAtIsNull(userId);
-        return stores.stream().map(StoreResponse::toDto).collect(Collectors.toList());
+        return stores.stream().map(StoreResponseDto::toDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -107,7 +106,7 @@ public class StoreServiceV2 {
 
     @Transactional
     @CacheEvict(value = "stores", allEntries = true)
-    public StoreResponse updateStore(Long storeId, StoreRequest request, Long userId) {
+    public StoreResponseDto updateStore(Long storeId, StoreRequestDto request, Long userId) {
         isAdmin(userId);
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
         validateStoreOwner(store, userId);
@@ -119,7 +118,7 @@ public class StoreServiceV2 {
 
         storeRepository.save(store);
 
-        return StoreResponse.toDto(store);
+        return StoreResponseDto.toDto(store);
     }
 
     @Transactional
@@ -155,20 +154,28 @@ public class StoreServiceV2 {
     }
 
     // findStoresByKeyword 실패 시 fallback 메서드
-    public List<StoreResponse> fallbackFindStoresByKeyword(StoreCursor cursor, int size, Exception e) {
+
+    public List<StoreResponseDto> fallbackFindStoresByKeyword(StoreCursor cursor, int size, Exception e) {
 
         log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
 
         List<Store> stores = storeRepository.findAll();
-        return stores.stream().map(StoreResponse::toDto).collect(Collectors.toList());
+        return stores.stream().map(StoreResponseDto::toDto).collect(Collectors.toList());
     }
-
     // findStore 실패 시 fallback 메서드
-    public StoreResponse fallbackFindStore(Long storeId, Exception e) {
+
+    public StoreResponseDto fallbackFindStore(Long storeId, Exception e) {
 
         log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
 
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
-        return StoreResponse.toDto(store);
+        return StoreResponseDto.toDto(store);
+    }
+    private void isAdmin(Long userId) {
+        UserResponse user = userGrpcClient.getUserById(userId);
+
+        if (!user.getUserRole().equals("ROLE_ADMIN")) {
+            throw new ApplicationException(FORBIDDEN_ADMIN_ONLY);
+        }
     }
 }

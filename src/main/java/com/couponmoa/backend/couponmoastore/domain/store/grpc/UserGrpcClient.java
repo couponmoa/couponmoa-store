@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoastore.domain.grpc;
+package com.couponmoa.backend.couponmoastore.domain.store.grpc;
 
 import com.couponmoa.grpc.user.UserIdRequest;
 import com.couponmoa.grpc.user.UserResponse;

@@ -2,8 +2,8 @@ package com.couponmoa.backend.couponmoastore.domain.store.controller.v2;
 
 import com.couponmoa.backend.couponmoastore.common.dto.ApiResponse;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreCursor;
-import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreRequest;
-import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponse;
+import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreRequestDto;
+import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponseDto;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreSimpleResponse;
 import com.couponmoa.backend.couponmoastore.domain.store.service.v2.StoreServiceV2;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,17 +27,17 @@ public class StoreControllerV2 {
     @Operation(summary = "스토어 생성", description = "사용자가 새로운 스토어를 생성함")
 //    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ApiResponse<StoreResponse>> createStore(
-            @Valid @RequestBody StoreRequest request,
+    public ResponseEntity<ApiResponse<StoreResponseDto>> createStore(
+            @Valid @RequestBody StoreRequestDto request,
             @RequestHeader("X-User-Id") Long userId) {
 
-        StoreResponse response = storeServiceV2.createStore(request, userId);
+        StoreResponseDto response = storeServiceV2.createStore(request, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Operation(summary = "키워드로 스토어 조회 (커서 방식)", description = "스토어 이름 기준 키워드로 검색하며, 커서 방식으로 페이징 처리")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<StoreResponse>>> findStoresByKeyword(
+    public ResponseEntity<ApiResponse<List<StoreResponseDto>>> findStoresByKeyword(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long storeId,
             @RequestParam(defaultValue = "10") int size) {
@@ -46,16 +46,16 @@ public class StoreControllerV2 {
                 ? new StoreCursor(keyword, storeId)
                 : null;
 
-        List<StoreResponse> stores = storeServiceV2.findStoresByKeyword(cursor, size);
+        List<StoreResponseDto> stores = storeServiceV2.findStoresByKeyword(cursor, size);
         return ResponseEntity.ok(ApiResponse.success(stores));
     }
 
     @Operation(summary = "내 스토어 목록 조회", description = "현재 로그인한 유저의 스토어들을 반환함")
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<StoreResponse>>> findMyStores(
+    public ResponseEntity<ApiResponse<List<StoreResponseDto>>> findMyStores(
             @RequestHeader("X-User-Id") Long userId) {
 
-        List<StoreResponse> stores = storeServiceV2.findMyStores(userId);
+        List<StoreResponseDto> stores = storeServiceV2.findMyStores(userId);
         return ResponseEntity.ok(ApiResponse.success(stores));
     }
 
@@ -70,22 +70,22 @@ public class StoreControllerV2 {
 
     @Operation(summary = "스토어 단건 조회", description = "스토어 ID로 상세 정보를 조회")
     @GetMapping("/{storeId}")
-    public ResponseEntity<ApiResponse<StoreResponse>> findStore(
+    public ResponseEntity<ApiResponse<StoreResponseDto>> findStore(
             @PathVariable Long storeId) {
 
-        StoreResponse store = storeServiceV2.findStore(storeId);
+        StoreResponseDto store = storeServiceV2.findStore(storeId);
         return ResponseEntity.ok(ApiResponse.success(store));
     }
 
     @Operation(summary = "스토어 수정", description = "사용자가 자신의 스토어 정보를 수정함")
 //    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{storeId}")
-    public ResponseEntity<ApiResponse<StoreResponse>> updateStore(
+    public ResponseEntity<ApiResponse<StoreResponseDto>> updateStore(
             @PathVariable Long storeId,
-            @Valid @RequestBody StoreRequest request,
+            @Valid @RequestBody StoreRequestDto request,
             @RequestHeader("X-User-Id") Long userId) {
 
-        StoreResponse updatedStore = storeServiceV2.updateStore(storeId, request, userId);
+        StoreResponseDto updatedStore = storeServiceV2.updateStore(storeId, request, userId);
         return ResponseEntity.ok(ApiResponse.success(updatedStore));
     }
 

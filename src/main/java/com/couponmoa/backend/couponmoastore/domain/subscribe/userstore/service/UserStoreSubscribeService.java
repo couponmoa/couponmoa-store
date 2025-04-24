@@ -3,7 +3,7 @@ package com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.service;
 import com.couponmoa.backend.couponmoastore.common.emailSender.dto.SendToMQDto;
 import com.couponmoa.backend.couponmoastore.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoastore.common.exception.ApplicationException;
-import com.couponmoa.backend.couponmoastore.domain.grpc.UserGrpcClient;
+import com.couponmoa.backend.couponmoastore.domain.store.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
 import com.couponmoa.backend.couponmoastore.domain.store.repository.StoreRepository;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.dto.response.FindStoreSubscribeListResponse;
