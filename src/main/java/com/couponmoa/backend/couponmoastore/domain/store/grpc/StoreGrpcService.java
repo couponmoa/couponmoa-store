@@ -38,7 +38,7 @@ public class StoreGrpcService extends StoreServiceGrpc.StoreServiceImplBase {
     }
 
     @Override
-    public void sendToSQS(StoreIdRequest request, StreamObserver<EmailListResponse> responseObserver) {
+    public void findSubscribedUserEmails(StoreIdRequest request, StreamObserver<EmailListResponse> responseObserver) {
         List<String> emailList = storeSubServ.sendToSQS(request.getStoreId());
 
         EmailListResponse.Builder responseBuilder = EmailListResponse.newBuilder()
