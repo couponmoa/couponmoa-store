@@ -2,6 +2,7 @@ package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
 
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
+import com.couponmoa.backend.couponmoacoupon.common.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponSearchByStoreRequest;
@@ -11,8 +12,9 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponId
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponQueryDslRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
+import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
 import com.couponmoa.grpc.store.StoreResponse;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.annotation.Counted;
@@ -42,9 +44,10 @@ import static com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponSt
 public class CouponService {
 
     private final CouponRepository couponRepository;
+    private final CouponQueryDslRepository couponQueryDslRepository;
     private final StoreGrpcClient storeGrpcClient;
     private final UserCouponSubscribeService userCouponSubServ;
-    private final UserStoreSubscribeService userStoreSubServ;
+//    private final UserStoreSubscribeGrpcClient userStoreSubscribeGrpcClient;
 
     @Timed(value = "coupon.create.time", description = "쿠폰 생성에 걸린 시간", histogram = true)
     @Counted(value = "coupon.create.count", description = "생성된 쿠폰 수")
@@ -159,7 +162,7 @@ public class CouponService {
         Coupon coupon = couponRepository.findByIdOrElseThrow(couponId, ErrorCode.COUPON_NOT_FOUND);
 
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
-        Store store = validateStoreOwnerAndGetStore(requestDto.getStoreId());
+        validateStoreOwnerAndGetStore(requestDto.getStoreId());
 
         // 새 이름이 기존 이름과 다를 경우에만 중복 검사
         if (!coupon.getName().equals(requestDto.getName()) &&
@@ -200,7 +203,7 @@ public class CouponService {
         }
 
         // 쿠폰 업데이트, 사실상 put 방식처럼 작동하도록.. 이게맞나 ?
-        updateIfPresent(coupon, requestDto);
+        updateIfPresent(coupon, requestDto, coupon.getStoreId());
 
         couponRepository.save(coupon);
 
@@ -215,7 +218,7 @@ public class CouponService {
         Coupon coupon = couponRepository.findByIdOrElseThrow(couponId, ErrorCode.COUPON_NOT_FOUND);
 
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
-        validateStoreOwnerAndGetStore(coupon.getStore().getId());
+        validateStoreOwnerAndGetStore(coupon.getStoreId());
 
         coupon.delete();
     }
@@ -243,7 +246,7 @@ public class CouponService {
         return storeResponse;
     }
 
-    private void updateIfPresent(Coupon coupon, CouponUpdateRequest requestDto) {
+    private void updateIfPresent(Coupon coupon, CouponUpdateRequest requestDto, Long storeId) {
         String name = requestDto.getName() != null ? requestDto.getName() : coupon.getName();
         BigDecimal discountAmount = requestDto.getDiscountAmount() != null ? requestDto.getDiscountAmount() : coupon.getDiscountAmount();
         BigDecimal discountRate = requestDto.getDiscountRate() != null ? requestDto.getDiscountRate() : coupon.getDiscountRate();
@@ -255,6 +258,7 @@ public class CouponService {
         LocalDateTime expiryDate = requestDto.getExpiryDate() != null ? requestDto.getExpiryDate() : coupon.getExpiryDate();
 
         coupon.update(
+                storeId,
                 name,
                 discountAmount,
                 discountRate,
@@ -263,8 +267,7 @@ public class CouponService {
                 description,
                 startDate,
                 endDate,
-                expiryDate,
-                coupon.getStore()
+                expiryDate
         );
     }
 
@@ -307,7 +310,7 @@ public class CouponService {
      * > 해당 가게를 구독한 사람에게 이메일로 알림이 전송된다
      */
     private void sendEmail(Coupon savedCoupon) {
-        userStoreSubServ.sendToSQS(savedCoupon.getStore().getId()); // 가게 구독 메일 전송
+//        userStoreSubscribeGrpcClient.sendToSQS(savedCoupon.getStoreId()); // 가게 구독 메일 전송
     }
 
 
@@ -338,7 +341,7 @@ public class CouponService {
     // findCoupon 실패 시 fallback 메서드
     public CouponDetailResponse fallbackFindCoupon(
             Long couponId,
-            AuthUser authUser,
+            Long userId,
             Exception e) {
         log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
 

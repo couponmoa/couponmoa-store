@@ -8,10 +8,15 @@ package user;
 
 service UserService {
   rpc FindById(UserIdRequest) returns (UserResponse); // userId로 user 조회하는 메서드
+  rpc FindByIds(UserIdsRequest) returns (UserListResponse);
 }
 
 message UserIdRequest {
   int64 userId = 1;
+}
+
+message UserIdsRequest {
+  repeated int64 userIds = 1;
 }
 
 message UserResponse {
@@ -20,4 +25,8 @@ message UserResponse {
   string nickname = 3;
   string userRole = 4;
   string deletedAt = 5; // LocalDateTime이 없어서 String으로 포맷
+}
+
+message UserListResponse {
+  repeated UserResponse users = 1;
 }

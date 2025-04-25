@@ -1,5 +1,7 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.repository;
 
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

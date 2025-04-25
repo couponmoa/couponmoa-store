@@ -1,5 +1,9 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.repository;
 
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.QCoupon;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -27,7 +31,7 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
                                                            BigDecimal discountAmount, BigDecimal discountRate,
                                                            LocalDateTime startDate, Pageable pageable) {
         QCoupon coupon = QCoupon.coupon;
-        QStore store = QStore.store;
+        QCoupon.coupon.storeId.eq(storeId);
 
         List<CouponSimpleResponse> content = queryFactory
                 .select(Projections.constructor(
@@ -38,7 +42,6 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
                         coupon.discountRate
                 ))
                 .from(coupon)
-                .join(coupon.store, store)
                 .where(
                         storeIdEquals(storeId),
                         keywordContains(keyword),
@@ -53,11 +56,9 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
                 .orderBy(coupon.issuedQuantity.desc(), coupon.name.asc())
                 .fetch();
 
-        // 조건에 해당하는 쿠폰의 전체 개수
         Long totalCount = queryFactory
                 .select(Wildcard.count)
                 .from(coupon)
-                .join(coupon.store, store)
                 .where(
                         storeIdEquals(storeId),
                         keywordContains(keyword),
@@ -102,7 +103,7 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
     }
 
     private BooleanExpression storeIdEquals(Long storeId) {
-        return storeId == null ? null : QStore.store.id.eq(storeId);
+        return storeId == null ? null : QCoupon.coupon.storeId.eq(storeId);
     }
 
     private BooleanExpression keywordContains(String keyword) {

@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc;
+package com.couponmoa.backend.couponmoacoupon.common.grpc;
 
 import com.couponmoa.grpc.store.StoreIdRequest;
 import com.couponmoa.grpc.store.StoreResponse;

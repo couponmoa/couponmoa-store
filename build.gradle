@@ -79,6 +79,7 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "com.querydsl:querydsl-apt"
 
     //h2 test db
     testImplementation 'com.h2database:h2'
@@ -106,7 +107,10 @@ protobuf {
         }
     }
     generateProtoTasks {
-        all().each { task ->
+        all().configureEach { task ->
+            task.builtins {
+                java {}
+            }
             task.plugins {
                 grpc {}
             }
@@ -114,11 +118,17 @@ protobuf {
     }
 }
 
+def querydslDir = "$buildDir/generated/querydsl"
+
 sourceSets {
     main {
         java {
+            srcDirs += querydslDir
             srcDirs += 'build/generated/source/proto/main/java'
             srcDirs += 'build/generated/source/proto/main/grpc'
+        }
+        proto {
+            srcDirs 'src/main/proto'
         }
         resources {
             exclude '**/*.proto'
@@ -126,17 +136,15 @@ sourceSets {
     }
 }
 
+compileJava {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
-
-sourceSets {
-    main.java.srcDirs += querydslDir
-}
-
-compileJava {
+tasks.withType(JavaCompile).configureEach {
     options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
 

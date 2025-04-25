@@ -1,7 +1,7 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response;
 
-import com.couponmoa.backend.domain.coupon.entity.Coupon;
-import com.couponmoa.backend.domain.coupon.enums.CouponStatus;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
