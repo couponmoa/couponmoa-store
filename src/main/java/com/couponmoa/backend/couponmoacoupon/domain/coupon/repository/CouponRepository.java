@@ -42,8 +42,5 @@ public interface CouponRepository extends BaseRepository<Coupon, Long> {
 
     // fallback 용 기본적인 메서드
     Page<Coupon> findByStoreId(Long storeId,Pageable pageable);
-
-    @Query("SELECT c FROM Coupon c JOIN FETCH c.store s WHERE c.deletedAt IS NULL and c.id = :id")
-    Optional<Coupon> findActiveByIdWithStore(Long id);
 }
 

@@ -17,10 +17,10 @@ public interface UserCouponRepository extends BaseRepository<UserCoupon, Long> {
                        c.maxDiscountAmount AS maxDiscountAmount
                 FROM UserCoupon uc
                 JOIN uc.coupon c
-                WHERE uc.user.id = :userId AND (:status IS NULL OR uc.status = :status)
+                WHERE uc.userId = :userId AND (:status IS NULL OR uc.status = :status)
             """)
     Page<UserCouponProjection> findByUserIdAndStatus(Long userId, UserCouponStatus status, Pageable pageable);
 
-    @Query("SELECT uc FROM UserCoupon uc JOIN FETCH uc.coupon c JOIN FETCH c.store s WHERE uc.code = :code")
-    Optional<UserCoupon> findByCodeWithCouponAndStore(String code);
+    @Query("SELECT uc FROM UserCoupon uc JOIN FETCH uc.coupon c WHERE uc.code = :code")
+    Optional<UserCoupon> findByCodeWithCoupon(String code);
 }

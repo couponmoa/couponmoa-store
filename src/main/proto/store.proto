@@ -10,6 +10,7 @@ service StoreService {
   rpc FindMyStores(UserIdRequest) returns (StoreListResponse);
   rpc FindMySimpleStores(UserIdRequest) returns (StoreSimpleListResponse);
   rpc CreateStore(CreateStoreRequest) returns (StoreResponse);
+  rpc FindSubscribedUserEmails(StoreIdRequest) returns (EmailListResponse);
 }
 
 /*Request*/
@@ -48,4 +49,9 @@ message StoreSimpleResponse {
 
 message StoreSimpleListResponse {
   repeated StoreSimpleResponse stores = 1;
+}
+
+
+message EmailListResponse {
+  repeated string emails =1;
 }

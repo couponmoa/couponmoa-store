@@ -1,8 +1,10 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
 
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponAlertDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
-import com.couponmoa.backend.couponmoacoupon.common.grpc.StoreGrpcClient;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponSearchByStoreRequest;
@@ -39,7 +41,6 @@ import static com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponSt
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class CouponService {
 
@@ -47,11 +48,12 @@ public class CouponService {
     private final CouponQueryDslRepository couponQueryDslRepository;
     private final StoreGrpcClient storeGrpcClient;
     private final UserCouponSubscribeService userCouponSubServ;
-//    private final UserStoreSubscribeGrpcClient userStoreSubscribeGrpcClient;
+    private final SqsService sqsService;
 
     @Timed(value = "coupon.create.time", description = "쿠폰 생성에 걸린 시간", histogram = true)
     @Counted(value = "coupon.create.count", description = "생성된 쿠폰 수")
     @CacheEvict(value = "coupons", allEntries = true)
+    @Transactional
     public CouponIdResponse createCoupon(CouponCreateRequest requestDto) {
 
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
@@ -115,11 +117,13 @@ public class CouponService {
     @Counted(value = "coupon.find_by_keyword.count", description = "키워드로 쿠폰 조회 횟수")
     @Cacheable(value = "coupons", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCacheKey(#status, #cursor, #size)")
     @Retry(name = "couponService", fallbackMethod = "fallbackFindCouponsByKeyword")
+    @Transactional(readOnly = true)
     public List<CouponSimpleResponse> findCouponsByKeyword(CouponStatus status, CouponCursor cursor, int size) {
         log.info("findCouponsByKeyword 호출");
         return searchWithSafeCursor(status, cursor == null ? new CouponCursor(null, null, null) : cursor, size);
     }
 
+    @Transactional(readOnly = true)
     @Timed(value = "coupon.find_by_store.time", description = "스토어별 쿠폰 조회에 걸린 시간", histogram = true)
     @Counted(value = "coupon.find_by_store.count", description = "스토어별 쿠폰 조회 횟수")
     @Cacheable(value = "coupons", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCacheKey(#storeId, #requestDto, #size, #page)")
@@ -147,10 +151,16 @@ public class CouponService {
     @Counted(value = "coupon.find.count", description = "쿠폰 상세 조회 횟수")
     @Cacheable(value = "couponDetails", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCouponCacheKey(#couponId)")
     @Retry(name = "couponService", fallbackMethod = "fallbackFindCoupon")
+    @Transactional(readOnly = true)
     public CouponDetailResponse findCoupon(Long couponId, Long userId) {
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.COUPON_NOT_FOUND));
         return CouponDetailResponse.toDto(coupon);
+    }
+
+    @Transactional(readOnly = true)
+    public Coupon getCouponById(Long couponId) {
+        return couponRepository.findByIdOrElseThrow(couponId, ErrorCode.COUPON_NOT_FOUND);
     }
 
     // 쿠폰 수정 시 캐시 무효화
@@ -310,7 +320,18 @@ public class CouponService {
      * > 해당 가게를 구독한 사람에게 이메일로 알림이 전송된다
      */
     private void sendEmail(Coupon savedCoupon) {
-//        userStoreSubscribeGrpcClient.sendToSQS(savedCoupon.getStoreId()); // 가게 구독 메일 전송
+        Long storeId = savedCoupon.getStoreId();
+        String storeName = storeGrpcClient.getStoreById(storeId).getName();
+        List<String> emails = storeGrpcClient.getSubscribedUserEmails(storeId);// 가게 구독 메일 전송
+        CouponAlertDto couponAlertDto = new CouponAlertDto(
+                savedCoupon.getId(),
+                savedCoupon.getName(),
+                storeId,
+                storeName,
+                "구독한 가게의 새 쿠폰 발급 알림",
+                emails);
+
+        sqsService.sendMessage(couponAlertDto);
     }
 
 

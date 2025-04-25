@@ -2,9 +2,9 @@ package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
-import com.couponmoa.backend.couponmoacoupon.common.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.request.UserCouponRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.UserCouponCodeResponse;
@@ -84,10 +84,12 @@ public class UserCouponService {
     @Counted(value = "user_coupon.use.count", description = "쿠폰 사용 처리 횟수")
     @Transactional
     public UserCouponUseResponse useUserCoupon(Long userId, UserCouponRequest request) {
-        UserCoupon userCoupon = userCouponRepository.findByCodeWithCouponAndStore(request.getCode())
+        UserCoupon userCoupon = userCouponRepository.findByCodeWithCoupon(request.getCode())
                 .orElseThrow(() -> new ApplicationException(ErrorCode.USER_COUPON_NOT_FOUND));
 
-        validateCouponStoreOwner(userCoupon.getCoupon().getStoreId(), userId);
+        StoreResponse storeResponse = storeGrpcClient.getStoreById(userCoupon.getCoupon().getStoreId());
+
+        validateCouponStoreOwner(storeResponse.getId(), userId);
         validateCouponStatus(userCoupon.getStatus());
 
         userCoupon.setUsed();

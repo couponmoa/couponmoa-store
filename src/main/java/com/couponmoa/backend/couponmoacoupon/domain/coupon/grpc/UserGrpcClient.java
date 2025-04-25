@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.common.grpc;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc;
 
 import com.couponmoa.grpc.user.*;
 import net.devh.boot.grpc.client.inject.GrpcClient;

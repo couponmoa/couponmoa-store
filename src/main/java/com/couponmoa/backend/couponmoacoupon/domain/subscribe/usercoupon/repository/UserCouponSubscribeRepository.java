@@ -11,13 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserCouponSubscribeRepository extends BaseRepository<UserCouponSubscribe, Long> {
-    Optional<UserCouponSubscribe> findByUserAndCoupon(Long userId, Coupon coupon);
+    Optional<UserCouponSubscribe> findByUserIdAndCoupon(Long userId, Coupon coupon);
 
-    Page<UserCouponSubscribe> findByUser(Long userId, Pageable pageable);
+    Page<UserCouponSubscribe> findByUserId(Long userId, Pageable pageable);
 
-    List<UserCouponSubscribe> findByUser(Long userId);
-
-    boolean existsByUserAndCoupon(Long userId, Coupon coupon);
+    boolean existsByUserIdAndCoupon(Long userId, Coupon coupon);
 
     @EntityGraph(attributePaths = {"user"})
     List<UserCouponSubscribe> findByCouponId(Long couponId);

@@ -3,7 +3,7 @@ package com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.servic
 import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.SendToMQDto;
 import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
-import com.couponmoa.backend.couponmoacoupon.common.grpc.UserGrpcClient;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.dto.response.FindCouponSubscribeListResponse;
@@ -32,9 +32,8 @@ public class UserCouponSubscribeService {
     @Transactional
     public void subscribeCoupon(Long userId, Long couponId) {
         Coupon coupon = getCoupon(couponId);
-        UserResponse userResponse = userGrpcClient.getUserById(userId);
 
-        if (userCouponSubscribeRepository.existsByUserAndCoupon(userId, coupon)) {
+        if (userCouponSubscribeRepository.existsByUserIdAndCoupon(userId, coupon)) {
             throw new ApplicationException(DUPLICATED_USER_COUPON);
         }
 
@@ -46,7 +45,8 @@ public class UserCouponSubscribeService {
     public void unSubscribeCoupon(Long userId, Long couponId) {
         Coupon coupon = getCoupon(couponId);
 
-        UserCouponSubscribe userCouponSubscribe = userCouponSubscribeRepository.findByUserAndCoupon(userId, coupon).orElseThrow(() -> new ApplicationException(USER_COUPON_NOT_FOUND));
+        UserCouponSubscribe userCouponSubscribe = userCouponSubscribeRepository.findByUserIdAndCoupon(
+                userId, coupon).orElseThrow(() -> new ApplicationException(USER_COUPON_NOT_FOUND));
 
         userCouponSubscribeRepository.delete(userCouponSubscribe);
     }
@@ -55,7 +55,7 @@ public class UserCouponSubscribeService {
     public List<FindCouponSubscribeListResponse> findSubscribeList(Long userId, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return userCouponSubscribeRepository.findByUser(userId, pageable)
+        return userCouponSubscribeRepository.findByUserId(userId, pageable)
                 .stream()
                 .map(FindCouponSubscribeListResponse::new)
                 .toList();
@@ -71,6 +71,7 @@ public class UserCouponSubscribeService {
                 .toList();
 
         List<UserResponse> users = userGrpcClient.getUsersByIds(userIdList);
+
         List<String> emailList = users.stream()
                 .map(UserResponse::getEmail)
                 .toList();

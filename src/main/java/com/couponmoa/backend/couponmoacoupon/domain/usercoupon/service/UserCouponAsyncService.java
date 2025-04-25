@@ -1,6 +1,8 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
-import com.couponmoa.backend.couponmoacoupon.common.grpc.UserGrpcClient;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponAlertDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.entity.UserCoupon;
@@ -9,16 +11,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserCouponAsyncService {
 
-    private final UserGrpcClient userGrpcClient;
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
     private final UserCouponRedisService userCouponRedisService;
-    private final NotificationGrpcClient notificationGrpcClient;
-
+    private final StoreGrpcClient storeGrpcClient;
+    private final SqsService sqsService;
 
     @Async
     public void saveUserCoupon(Long userId, Long couponId) {
@@ -42,7 +45,16 @@ public class UserCouponAsyncService {
     }
 
     private void saveNotification(Long userId, UserCoupon userCoupon) {
-        issuedNotificationService.createIssuedNotification(userId, userCoupon);
-        expiredNotificationService.createCouponExpireNotification(userCoupon);
+        Coupon coupon = userCoupon.getCoupon();
+        String storeName = storeGrpcClient.getStoreById(coupon.getStoreId()).getName();
+        List<String> emails = storeGrpcClient.getSubscribedUserEmails(coupon.getStoreId());
+
+        sqsService.sendMessage(new CouponAlertDto(
+                coupon.getId(),
+                coupon.getName(),
+                coupon.getStoreId(),
+                storeName,
+                "쿠폰이 발급되었습니다.",
+                emails));
     }
 }

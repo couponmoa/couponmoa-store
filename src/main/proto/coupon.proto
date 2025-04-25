@@ -8,6 +8,14 @@ package coupon;
 
 import "google/protobuf/empty.proto";
 
+service CouponServiceV2 {
+  rpc CreateCoupon(CouponCreateRequest) returns (CouponIdResponse);
+  rpc UpdateCoupon(CouponUpdateRequest) returns (google.protobuf.Empty);
+  rpc FindById(CouponIdRequest) returns (CouponDetailResponse);
+  rpc FindCouponsByCursor(CouponCursorRequest) returns (CouponListResponse);
+  rpc FindCouponsByStore(CouponListByStoreIdRequest) returns (CouponListResponse);
+}
+
 message CouponCreateRequest {
   string name = 1;
   int64 totalQuantity = 2;
@@ -35,6 +43,10 @@ message CouponUpdateRequest {
   string endDate = 10;
   string expiryDate = 11;
   int64 storeId = 12;
+}
+
+message CouponIdRequest {
+  int64 couponId = 1;
 }
 
 message CouponDetailRequest {
@@ -89,11 +101,3 @@ message CouponListResponse {
   repeated CouponSimpleResponse coupons = 1;
 }
 
-// gRPC 서비스 정의
-service CouponServiceV2 {
-  rpc CreateCoupon(CouponCreateRequest) returns (CouponIdResponse);
-  rpc UpdateCoupon(CouponUpdateRequest) returns (google.protobuf.Empty);
-  rpc GetCouponDetail(CouponDetailRequest) returns (CouponDetailResponse);
-  rpc GetCouponsByCursor(CouponCursorRequest) returns (CouponListResponse);
-  rpc GetCouponsByStore(CouponListByStoreIdRequest) returns (CouponListResponse);
-}
