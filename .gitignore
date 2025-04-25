@@ -38,3 +38,4 @@ out/
 *-local.properties
 *-local.yml
 .env
+terraform/*

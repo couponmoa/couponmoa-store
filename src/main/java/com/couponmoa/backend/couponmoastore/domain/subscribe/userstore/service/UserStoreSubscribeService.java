@@ -3,8 +3,8 @@ package com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.service;
 import com.couponmoa.backend.couponmoastore.common.emailSender.dto.SendToMQDto;
 import com.couponmoa.backend.couponmoastore.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoastore.common.exception.ApplicationException;
-import com.couponmoa.backend.couponmoastore.domain.store.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
+import com.couponmoa.backend.couponmoastore.domain.store.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoastore.domain.store.repository.StoreRepository;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.dto.response.FindStoreSubscribeListResponse;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.entity.UserStoreSubscribe;
@@ -18,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.*;
+import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.DUPLICATED_USER_COUPON;
+import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.STORE_NOT_FOUND;
 
 
 @Service
@@ -66,26 +67,11 @@ public class UserStoreSubscribeService {
     public List<String> sendToSQS(Long storeId) {
         Store store = storeRepo.findByIdOrElseThrow(storeId, STORE_NOT_FOUND);
 
-//        List<UserStoreSubscribe> storeList = userStoreSubRepo.findByStore_Id(storeId);
-//        List<Long> userIdList = storeList.stream().map(UserStoreSubscribe::getUserId).toList();
-//        List<UserResponse> userList = userIdList.stream().map(userGrpcClient::getUserById).toList();
-//        List<String> userEmailList = userList.stream().map(UserResponse::getEmail).toList();
-
         List<String> emailList = userStoreSubRepo.findByStore_Id(storeId).stream()
                 .map(UserStoreSubscribe::getUserId)
                 .map(userGrpcClient::getUserById)
                 .map(UserResponse::getEmail)
                 .toList();
-
-
-        //가게를 구독한 유저 리스트를 꺼내온다
-//        List<User> userList = userStoreSubRepo.findByStore_Id(storeId)
-//                .stream()
-//                .map(UserStoreSubscribe::getUser).toList();
-//
-//        List<String> emailList = userList.stream()
-//                .map(User::getEmail)
-//                .toList();
 
         if (emailList.isEmpty()) {
             return emailList;
@@ -101,10 +87,6 @@ public class UserStoreSubscribeService {
 
         return emailList;
     }
-
-//    private User getUser(Long userId) {
-//        return userGrpcClient.findByIdOrElseThrow(userId, USER_NOT_FOUND);
-//    }
 
     private Store getStore(Long storeId) {
         return storeRepo.findByIdOrElseThrow(storeId, STORE_NOT_FOUND);

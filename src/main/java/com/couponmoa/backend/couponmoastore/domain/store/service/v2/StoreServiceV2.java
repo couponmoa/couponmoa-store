@@ -171,6 +171,9 @@ public class StoreServiceV2 {
         Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
         return StoreResponseDto.toDto(store);
     }
+
+
+
     private void isAdmin(Long userId) {
         UserResponse user = userGrpcClient.getUserById(userId);
 
