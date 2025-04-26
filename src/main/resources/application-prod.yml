@@ -1,0 +1,24 @@
+server:
+  port: 8083
+spring:
+  cloud:
+    aws:
+      credentials:
+        instance-profile: true
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      sqs:
+        queue:
+          email-alert: https://sqs.ap-northeast-2.amazonaws.com/588738590244/couponmoa-queue
+          coupon-alert: https://sqs.ap-northeast-2.amazonaws.com/588738590244/coupon-alert-queue
+  application:
+    name: store-server
+grpc:
+  client:
+    user-service:
+      address: static://couponmoa-dev-user-service:6560
+      negotiation-type: plaintext
+  server:
+    port: 6560
