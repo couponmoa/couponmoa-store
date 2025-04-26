@@ -10,7 +10,7 @@ service StoreService {
   rpc FindMyStores(UserIdRequest) returns (StoreListResponse);
   rpc FindMySimpleStores(UserIdRequest) returns (StoreSimpleListResponse);
   rpc CreateStore(CreateStoreRequest) returns (StoreResponse);
-  rpc FindSubscribedUserEmails(StoreIdRequest) returns (EmailListResponse);
+  rpc FindSubscribedUdserEmails(StoreIdRequest) returns (EmailListResponse);
 }
 
 /*Request*/
