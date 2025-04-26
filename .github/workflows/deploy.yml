@@ -10,7 +10,8 @@ permissions:
   id-token: write  # 필요시 OIDC 사용
 
 jobs:
-  build-and-deploy:
+  deploy:
+    name: Deploy to ECS
     runs-on: ubuntu-latest
 
     steps:
@@ -54,10 +55,10 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Update ECS Service
-        uses: aws-actions/amazon-ecs-update-service@v2
-        with:
-          cluster: couponmoa-dev-cluster
-          service: couponmoa-dev-store-service
-          force-new-deployment: true
-          wait-for-service-stability: true
+      - name: Force new deployment on ECS service
+        run: |
+          aws ecs update-service \
+            --cluster couponmoa-dev-cluster \
+            --service couponmoa-dev-store-service \
+            --force-new-deployment \
+            --region ap-northeast-2
