@@ -37,5 +37,6 @@ out/
 .vscode/
 *-local.properties
 *-local.yml
+*-prod.yml
 .env
 terraform/*
