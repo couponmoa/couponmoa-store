@@ -29,7 +29,6 @@ public class StoreControllerV2 {
     public ResponseEntity<ApiResponse<StoreResponseDto>> createStore(
             @Valid @RequestBody StoreRequestDto request,
             @RequestHeader("X-User-Id") Long userId) {
-
         StoreResponseDto response = storeServiceV2.createStore(request, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
