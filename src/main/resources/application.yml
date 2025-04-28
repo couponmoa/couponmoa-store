@@ -5,7 +5,7 @@ spring:
   application:
     name: coupon-server
   profiles:
-    active: local
+    active: ${SPRING_PROFILE:local}
 
 management:
   endpoints:
