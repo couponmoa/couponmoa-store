@@ -1,0 +1,40 @@
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+
+server:
+  port: 8082
+
+spring:
+  data:
+    redis:
+      host: couponmoa-dev-redis.lstwrk.0001.apn2.cache.amazonaws.com
+      port: 6379
+
+  datasource:
+    url: jdbc:mysql://${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      credentials:
+        instance-profile: true
+      s3:
+        bucket: couponmoa-coupon-prod
+  application:
+    name: coupon-sever
+
+
+grpc:
+  client:
+    user-service:
+      address: static://couponmoa-dev-user-service.couponmoa.local:6565
+      negotiation-type: plaintext
+  server:
+    port: 6565
