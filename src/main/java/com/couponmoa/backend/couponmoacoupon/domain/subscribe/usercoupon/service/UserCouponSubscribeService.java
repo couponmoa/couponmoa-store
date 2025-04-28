@@ -1,8 +1,9 @@
 package com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service;
 
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.SendToMQDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponCreateDto;
 import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.CouponGrpcService;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
@@ -70,21 +71,13 @@ public class UserCouponSubscribeService {
                 .map(UserCouponSubscribe::getUserId)
                 .toList();
 
-        List<UserResponse> users = userGrpcClient.getUsersByIds(userIdList);
-
-        List<String> emailList = users.stream()
-                .map(UserResponse::getEmail)
-                .toList();
+        List<String> emailList = userGrpcClient.getUserEmails(userIdList);
 
         if (emailList.isEmpty()) {
             return emailList;
         }
 
-        SendToMQDto message = new SendToMQDto(
-                emailList,
-                "쿠폰 갱신 안내",
-                coupon.getName(),
-                "쿠폰이 새로 발행되었습니다!");
+        CouponCreateDto message = new CouponCreateDto(coupon.getName(), emailList);
 
         sqsService.sendMessage(message);
 

@@ -2,7 +2,8 @@ package com.couponmoa.backend.couponmoacoupon.common.emailSender.service;
 
 import com.couponmoa.backend.couponmoacoupon.common.emailSender.SqsProperties;
 import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponAlertDto;
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.SendToMQDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponCreateDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponExpireDto;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,23 @@ public class SqsService {
     private String queueUrl;
     private final ObjectMapper objectMapper;
 
-    public void sendMessage(SendToMQDto message) {
+    public void sendMessage(CouponExpireDto message) {
+        queueUrl = sqsProperties.getEmailAlert();
+        try {
+            log.info(">>> Sending message to SQS: {}", message);
+            if (queueUrl == null) {
+                queueUrl = "couponmoa-queue";
+            }
+            String messageQ = objectMapper.writeValueAsString(message);
+            sqsTemplate.send(queueUrl, messageQ);
+            log.info(">>> Message sent successfully.");
+        } catch (Exception e) {
+            log.error(">>> Failed to send message", e);
+            throw new ApplicationException(ErrorCode.UNABLE_SEND_MESSAGE);
+        }
+    }
+
+    public void sendMessage(CouponCreateDto message) {
         queueUrl = sqsProperties.getEmailAlert();
         try {
             log.info(">>> Sending message to SQS: {}", message);
