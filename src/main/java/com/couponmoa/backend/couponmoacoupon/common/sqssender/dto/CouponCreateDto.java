@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.common.emailSender.dto;
+package com.couponmoa.backend.couponmoacoupon.common.sqssender.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

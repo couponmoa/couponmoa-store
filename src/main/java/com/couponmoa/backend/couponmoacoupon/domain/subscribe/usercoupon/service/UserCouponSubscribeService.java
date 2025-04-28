@@ -1,9 +1,8 @@
 package com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service;
 
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponCreateDto;
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.dto.CouponCreateDto;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.CouponGrpcService;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;

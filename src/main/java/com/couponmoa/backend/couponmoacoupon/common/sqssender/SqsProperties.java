@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.common.emailSender;
+package com.couponmoa.backend.couponmoacoupon.common.sqssender;
 
 import lombok.Getter;
 import lombok.Setter;

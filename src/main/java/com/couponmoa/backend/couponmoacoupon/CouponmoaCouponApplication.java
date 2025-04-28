@@ -1,6 +1,6 @@
 package com.couponmoa.backend.couponmoacoupon;
 
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.SqsProperties;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.SqsProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
