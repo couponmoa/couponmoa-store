@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -119,21 +120,26 @@ public class UserCouponService {
 
         for (Map.Entry<String, List<UserCoupon>> entry : grouped.entrySet()) {
             String couponName = entry.getKey();
-            List<Long> userCouponIds = entry.getValue().stream()
-                    .map(UserCoupon::getId)
-                    .toList();
+
+            List<Long> userCouponIds = new ArrayList<>();
+            List<Long> userIds = new ArrayList<>();
+
+            entry.getValue().forEach(userCoupon -> {
+                userCouponIds.add(userCoupon.getId());
+                userIds.add(userCoupon.getUserId());
+            });
 
             // 큐에 Job 등록
-            jobScheduler.enqueue(() -> sendGroupedExpireNotification(userCouponIds, couponName));
+            jobScheduler.enqueue(() -> sendGroupedExpireNotification(userIds, userCouponIds, couponName));
         }
     }
 
     // jobrunr 실행 대상, sqs 요청 메서드
     @Job(name = "Send grouped notification", retries = 3)
     @Transactional
-    public void sendGroupedExpireNotification(List<Long> userCouponIds, String couponName) {
+    public void sendGroupedExpireNotification(List<Long> userIds, List<Long> userCouponIds, String couponName) {
         try { // sqs 메시지 요청 실패시 db 롤백
-            sqsService.sendMessage(createMessageQueueDto(userCouponIds, couponName));
+            sqsService.sendMessage(createMessageQueueDto(userIds, userCouponIds, couponName));
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.SQS_SEND_FAILED);
         }
@@ -185,8 +191,8 @@ public class UserCouponService {
         }
     }
 
-    private CouponExpireDto createMessageQueueDto(List<Long> userCouponIds, String couponName) {
-        List<String> emailList = userGrpcClient.getUserEmails(userCouponIds);
+    private CouponExpireDto createMessageQueueDto(List<Long> userIds, List<Long> userCouponIds, String couponName) {
+        List<String> emailList = userGrpcClient.getUserEmails(userIds);
 
         return CouponExpireDto.builder()
                 .couponName(couponName)

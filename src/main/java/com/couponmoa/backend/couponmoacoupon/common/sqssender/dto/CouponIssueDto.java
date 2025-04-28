@@ -4,11 +4,13 @@ import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.entity.UserCoupon
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 public class CouponIssueDto {
     private final Long userId;

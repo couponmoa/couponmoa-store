@@ -25,14 +25,11 @@ public class SqsService {
     private final ObjectMapper objectMapper;
 
     public void sendMessage(CouponExpireDto message) {
-        queueUrl = sqsProperties.getEmailAlert();
+        String queueUrl = sqsProperties.getCouponExpireEndpoint();
+
         try {
             log.info(">>> Sending message to SQS: {}", message);
-            if (queueUrl == null) {
-                queueUrl = "couponmoa-queue";
-            }
-            String messageQ = objectMapper.writeValueAsString(message);
-            sqsTemplate.send(queueUrl, messageQ);
+            sqsTemplate.send(queueUrl, message);
             log.info(">>> Message sent successfully.");
         } catch (Exception e) {
             log.error(">>> Failed to send message", e);
@@ -73,12 +70,15 @@ public class SqsService {
     }
 
     public void sendMessage(CouponIssueDto message) {
-        queueUrl = sqsProperties.getCouponIssueEndpoint();
+        String queueUrl = sqsProperties.getCouponIssueEndpoint();
 
         try {
+            log.info(">>> Sending coupon message to SQS: {}", message);
             sqsTemplate.send(queueUrl, message);
+            log.info(">>> Message sent successfully");
         } catch (Exception e) {
             log.error(">>> Failed to send issue message: {}", e.getMessage(), e);
+            throw new ApplicationException(ErrorCode.UNABLE_SEND_MESSAGE);
         }
     }
 }

@@ -14,5 +14,7 @@ public class SqsProperties {
     private String emailAlert;
     private String couponAlert;
     @NotNull
+    private String couponExpireEndpoint;
+    @NotNull
     private String couponIssueEndpoint;
 }
