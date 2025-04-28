@@ -1,11 +1,12 @@
 server:
-  port: 8082
+  port: 8083
 
 spring:
   application:
     name: coupon-server
   profiles:
-    active: local
+    active: ${SPRING_PROFILE:local}
+
 
 management:
   endpoints:
