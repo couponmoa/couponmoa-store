@@ -7,6 +7,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.User
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.UserCouponResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.UserCouponUseResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.enums.UserCouponStatus;
+import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service.UserCouponAsyncService;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service.UserCouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +30,7 @@ public class UserCouponController {
     private static final int DEFAULT_SIZE = 10;
 
     private final UserCouponService userCouponService;
+    private final UserCouponAsyncService userCouponAsyncService;
 
     @Operation(summary = "쿠폰 발급 (동기)")
     @Secured(UserRole.Authority.USER)
@@ -85,5 +88,12 @@ public class UserCouponController {
     ) {
         UserCouponUseResponse response = userCouponService.useUserCoupon(userId, request);
         return ApiResponse.success(response);
+    }
+
+    @Operation(summary = "발급 쿠폰 만료 알림 전송", description = "만료 알림 조회 및 알림 서버로 전송(스케줄링 서버에서 요청하는 api)")
+    @PostMapping("/v1/user-coupons/expire")
+    public ResponseEntity<ApiResponse<Void>> NotifyCouponExpire() {
+        userCouponService.sendExpireCouponNotifications();
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }
