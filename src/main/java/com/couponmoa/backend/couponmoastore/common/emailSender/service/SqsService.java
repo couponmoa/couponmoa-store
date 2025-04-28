@@ -27,7 +27,7 @@ public class SqsService {
         try {
             log.info(">>> Sending message to SQS: {}", message);
             if (queueUrl == null) {
-                queueUrl = "couponmoa-queue";
+                queueUrl = "coupon-create-queue";
             }
             String messageQ = objectMapper.writeValueAsString(message);
             sqsTemplate.send(queueUrl, messageQ);
@@ -38,19 +38,19 @@ public class SqsService {
         }
     }
 
-    public void sendMessage(CouponAlertDto message) {
-        queueUrl = sqsProperties.getCouponAlert();
-        try {
-            log.info(">>> Sending coupon message to SQS: {}", message);
-            if (queueUrl == null) {
-                queueUrl = "coupon-alert";
-            }
-            String messageQ = objectMapper.writeValueAsString(message);
-            sqsTemplate.send(queueUrl, messageQ);
-            log.info(">>> Message sent successfully");
-        } catch (Exception e) {
-            log.error(">>> Failed to send message", e);
-            throw new ApplicationException(ErrorCode.UNABLE_SEND_MESSAGE);
-        }
-    }
+//    public void sendMessage(CouponAlertDto message) {
+//        queueUrl = sqsProperties.getCouponAlert();
+//        try {
+//            log.info(">>> Sending coupon message to SQS: {}", message);
+//            if (queueUrl == null) {
+//                queueUrl = "coupon-alert";
+//            }
+//            String messageQ = objectMapper.writeValueAsString(message);
+//            sqsTemplate.send(queueUrl, messageQ);
+//            log.info(">>> Message sent successfully");
+//        } catch (Exception e) {
+//            log.error(">>> Failed to send message", e);
+//            throw new ApplicationException(ErrorCode.UNABLE_SEND_MESSAGE);
+//        }
+//    }
 }

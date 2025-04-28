@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.DUPLICATED_USER_COUPON;
-import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.STORE_NOT_FOUND;
+import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.*;
 
 
 @Service
@@ -37,7 +36,7 @@ public class UserStoreSubscribeService {
         Store store = getStore(storeId);
 
         if (userStoreSubRepo.existsByUserIdAndStore(userId, store)) {
-            throw new ApplicationException(DUPLICATED_USER_COUPON);
+            throw new ApplicationException(DUPLICATED_USER_STORE);
         }
 
         UserStoreSubscribe userCouponSubscribe = new UserStoreSubscribe(userId, store);
@@ -79,9 +78,7 @@ public class UserStoreSubscribeService {
 
         SendToMQDto message = new SendToMQDto(
                 emailList,
-                "가게 새 쿠폰 발행 안내",
-                store.getName(),
-                "에서 새 쿠폰이 발행되었습니다!");
+                store.getName());
 
         sqsService.sendMessage(message);
 
