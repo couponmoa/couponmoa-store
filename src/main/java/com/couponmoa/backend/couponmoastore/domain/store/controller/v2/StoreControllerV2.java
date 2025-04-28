@@ -61,7 +61,7 @@ public class StoreControllerV2 {
     @Operation(summary = "내 간단한 스토어 목록 조회", description = "스토어 id와 이름만 반환")
     @GetMapping("/my/simple")
     public ResponseEntity<ApiResponse<List<StoreSimpleResponse>>> findMySimpleStores(
-            Long userId) {
+            @RequestHeader("X-User-Id") Long userId) { // TODO: 여쭤보기
 
         List<StoreSimpleResponse> stores = storeServiceV2.findMySimpleStores(userId);
         return ResponseEntity.ok(ApiResponse.success(stores));
