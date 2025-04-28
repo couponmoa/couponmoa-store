@@ -1,10 +1,8 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
 
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponAlertDto;
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
+import com.couponmoa.backend.couponmoacoupon.common.dto.ApiResponse;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponSearchByStoreRequest;
@@ -14,6 +12,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponId
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponQueryDslRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
@@ -25,12 +24,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -44,11 +47,12 @@ import static com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponSt
 @Slf4j
 public class CouponService {
 
+    private static final String STORE_ALERT_URL = "http://couponmoa-dev-store-service.couponmoa.local:8082/api/v1/stores/{storeId}/alert";
     private final CouponRepository couponRepository;
     private final CouponQueryDslRepository couponQueryDslRepository;
     private final StoreGrpcClient storeGrpcClient;
     private final UserCouponSubscribeService userCouponSubServ;
-    private final SqsService sqsService;
+    private final RestTemplate restTemplate;
 
     @Timed(value = "coupon.create.time", description = "쿠폰 생성에 걸린 시간", histogram = true)
     @Counted(value = "coupon.create.count", description = "생성된 쿠폰 수")
@@ -108,7 +112,7 @@ public class CouponService {
 
         Coupon savedCoupon = couponRepository.save(newCoupon);
 
-        sendEmail(savedCoupon);
+        sendEmail(requestDto.getStoreId());
 
         return new CouponIdResponse(savedCoupon.getId());
     }
@@ -315,23 +319,19 @@ public class CouponService {
         return new ResolvedDates(startDate, endDate, expiryDate);
     }
 
-    /**
-     * 새로 쿠폰이 발행 될 경우의 로직
-     * > 해당 가게를 구독한 사람에게 이메일로 알림이 전송된다
-     */
-    private void sendEmail(Coupon savedCoupon) {
-        Long storeId = savedCoupon.getStoreId();
-        String storeName = storeGrpcClient.getStoreById(storeId).getName();
-        List<String> emails = storeGrpcClient.getSubscribedUserEmails(storeId);// 가게 구독 메일 전송
-        CouponAlertDto couponAlertDto = new CouponAlertDto(
-                savedCoupon.getId(),
-                savedCoupon.getName(),
-                storeId,
-                storeName,
-                "구독한 가게의 새 쿠폰 발급 알림",
-                emails);
-
-        sqsService.sendMessage(couponAlertDto);
+    private void sendEmail(Long storeId) {
+        try {
+            ResponseEntity<ApiResponse<List<String>>> response = restTemplate.exchange(
+                    STORE_ALERT_URL,
+                    HttpMethod.POST,
+                    null,
+                    new ParameterizedTypeReference<>() {},
+                    storeId
+            );
+            log.info("response: {}", response);
+        } catch (Exception e) {
+            log.error("API 호출 중 오류 발생: {}", e.getMessage());
+        }
     }
 
 
