@@ -1,7 +1,7 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponExpireDto;
-import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.dto.CouponExpireDto;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
