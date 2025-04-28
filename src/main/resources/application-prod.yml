@@ -2,10 +2,13 @@ jwt:
   secret:
     key: ${JWT_SECRET_KEY}
 
+server:
+  port: 8082
+
 spring:
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: couponmoa-dev-redis.lstwrk.0001.apn2.cache.amazonaws.com
       port: 6379
 
   datasource:
@@ -24,3 +27,14 @@ spring:
         instance-profile: true
       s3:
         bucket: couponmoa-coupon-prod
+  application:
+    name: coupon-sever
+
+
+grpc:
+  client:
+    user-service:
+      address: static://couponmoa-dev-user-service.couponmoa.local:6565
+      negotiation-type: plaintext
+  server:
+    port: 6565
