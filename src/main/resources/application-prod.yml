@@ -3,7 +3,7 @@ jwt:
     key: ${JWT_SECRET_KEY}
 
 server:
-  port: 8082
+  port: 8083
 
 spring:
   data:
