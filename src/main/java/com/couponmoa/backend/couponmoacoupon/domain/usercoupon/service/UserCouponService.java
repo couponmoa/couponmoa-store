@@ -1,6 +1,7 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
 import com.couponmoa.backend.couponmoacoupon.common.sqssender.dto.CouponExpireDto;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.enums.QueueType;
 import com.couponmoa.backend.couponmoacoupon.common.sqssender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
@@ -108,6 +109,7 @@ public class UserCouponService {
         validateCouponStatus(userCoupon.getStatus());
 
         userCoupon.setUsed();
+        userCouponAsyncService.sendCouponUseMessage(userCoupon.getId());
         return UserCouponUseResponse.from(userCoupon);
     }
 
@@ -139,7 +141,7 @@ public class UserCouponService {
     @Transactional
     public void sendGroupedExpireNotification(List<Long> userIds, List<Long> userCouponIds, String couponName) {
         try { // sqs 메시지 요청 실패시 db 롤백
-            sqsService.sendMessage(createMessageQueueDto(userIds, userCouponIds, couponName));
+            sqsService.sendMessage(QueueType.COUPON_EXPIRE, createMessageQueueDto(userIds, userCouponIds, couponName));
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.SQS_SEND_FAILED);
         }

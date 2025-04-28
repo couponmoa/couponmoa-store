@@ -1,6 +1,8 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
 import com.couponmoa.backend.couponmoacoupon.common.sqssender.dto.CouponIssueDto;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.dto.CouponUseDto;
+import com.couponmoa.backend.couponmoacoupon.common.sqssender.enums.QueueType;
 import com.couponmoa.backend.couponmoacoupon.common.sqssender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
@@ -35,6 +37,12 @@ public class UserCouponAsyncService {
         sendCouponIssueMessage(userCoupon);
     }
 
+    @Async
+    public void sendCouponUseMessage(Long userCouponId) {
+        CouponUseDto message = CouponUseDto.of(userCouponId);
+        sqsService.sendMessage(QueueType.COUPON_USE, message);
+    }
+
     private UserCoupon saveUserCoupon(Long userId, Coupon coupon) {
         UserCoupon userCoupon = new UserCoupon(userId, coupon);
         return userCouponRepository.save(userCoupon);
@@ -42,6 +50,6 @@ public class UserCouponAsyncService {
 
     private void sendCouponIssueMessage(UserCoupon userCoupon) {
         CouponIssueDto message = CouponIssueDto.of(userCoupon);
-        sqsService.sendMessage(message);
+        sqsService.sendMessage(QueueType.COUPON_ISSUE, message);
     }
 }
