@@ -19,11 +19,11 @@ public class UserGrpcClient {
         return userStub.findById(request);
     }
 
-    public List<UserResponse> getUsersByIds(List<Long> userIds) {
-        UserIdsRequest request = UserIdsRequest.newBuilder()
-                .addAllUserIds(userIds)
-                .build();
-        UserListResponse response = userStub.findByIds(request);
-        return response.getUsersList();
+    public List<String> getUserEmails(List<Long> userIds) {
+        UserIdsRequest request = UserIdsRequest.newBuilder().addAllUserIds(userIds).build();
+
+        UserEmailsResponse response = userStub.getUserEmailList(request);
+
+        return response.getEmailsList();
     }
 }

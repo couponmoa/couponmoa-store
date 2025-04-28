@@ -1,10 +1,13 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.dto.CouponExpireDto;
+import com.couponmoa.backend.couponmoacoupon.common.emailSender.service.SqsService;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoacoupon.common.exception.ErrorCode;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.UserGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.request.UserCouponRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.UserCouponCodeResponse;
@@ -17,12 +20,20 @@ import com.couponmoa.grpc.store.StoreResponse;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
+import org.jobrunr.jobs.annotations.Job;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +44,9 @@ public class UserCouponService {
     private final UserCouponRedisService userCouponRedisService;
     private final UserCouponAsyncService userCouponAsyncService;
     private final StoreGrpcClient storeGrpcClient;
+    private final JobScheduler jobScheduler;
+    private final SqsService sqsService;
+    private final UserGrpcClient userGrpcClient;
 
     @Timed(value = "user_coupon.create_sync.time", description = "동기 쿠폰 발급에 걸린 시간",  histogram = true)
     @Counted(value = "user_coupon.create_sync.count", description = "동기 쿠폰 발급 횟수")
@@ -96,6 +110,35 @@ public class UserCouponService {
         return UserCouponUseResponse.from(userCoupon);
     }
 
+    @Transactional
+    public void sendExpireCouponNotifications() {
+        List<UserCoupon> userCouponList = findUserCouponsExpireTomorrow();
+
+        Map<String, List<UserCoupon>> grouped = userCouponList.stream()
+                .collect(Collectors.groupingBy(userCoupon -> userCoupon.getCoupon().getName()));
+
+        for (Map.Entry<String, List<UserCoupon>> entry : grouped.entrySet()) {
+            String couponName = entry.getKey();
+            List<Long> userCouponIds = entry.getValue().stream()
+                    .map(UserCoupon::getId)
+                    .toList();
+
+            // 큐에 Job 등록
+            jobScheduler.enqueue(() -> sendGroupedExpireNotification(userCouponIds, couponName));
+        }
+    }
+
+    // jobrunr 실행 대상, sqs 요청 메서드
+    @Job(name = "Send grouped notification", retries = 3)
+    @Transactional
+    public void sendGroupedExpireNotification(List<Long> userCouponIds, String couponName) {
+        try { // sqs 메시지 요청 실패시 db 롤백
+            sqsService.sendMessage(createMessageQueueDto(userCouponIds, couponName));
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.SQS_SEND_FAILED);
+        }
+    }
+
     private void validateCouponIssuablePeriod(CouponStatus status) {
         if (status != CouponStatus.IN_PROGRESS) {
             throw new ApplicationException(ErrorCode.COUPON_NOT_ACTIVE);
@@ -140,5 +183,22 @@ public class UserCouponService {
         if (storeOwnerId.equals(userId)) {
             throw new ApplicationException(ErrorCode.USER_COUPON_ACCESS_DENIED);
         }
+    }
+
+    private CouponExpireDto createMessageQueueDto(List<Long> userCouponIds, String couponName) {
+        List<String> emailList = userGrpcClient.getUserEmails(userCouponIds);
+
+        return CouponExpireDto.builder()
+                .couponName(couponName)
+                .expiryDate(LocalDateTime.now().plusDays(1))
+                .emailList(emailList)
+                .userCouponIdList(userCouponIds).build();
+    }
+
+    // 다음날에 만료되는 쿠폰 조회
+    private List<UserCoupon> findUserCouponsExpireTomorrow() {
+        LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        return userCouponRepository.findUserCouponsExpireTomorrow(start, end);
     }
 }
