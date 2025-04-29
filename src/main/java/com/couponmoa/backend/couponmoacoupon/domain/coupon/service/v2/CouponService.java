@@ -235,6 +235,8 @@ public class CouponService {
         validateStoreOwnerAndGetStore(coupon.getStoreId());
 
         coupon.delete();
+
+        couponRepository.save(coupon);
     }
 
     private StoreResponse validateStoreOwnerAndGetStore(Long storeId) {
