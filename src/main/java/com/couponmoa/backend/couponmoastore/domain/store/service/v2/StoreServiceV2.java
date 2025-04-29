@@ -38,8 +38,6 @@ public class StoreServiceV2 {
     @Transactional
     @CacheEvict(value = "stores", allEntries = true)
     public StoreResponseDto createStore(StoreRequestDto request, Long userId) {
-//        User user = userRepository.findByIdOrElseThrow(userId, ErrorCode.USER_NOT_FOUND);
-
         if (userId == null) {
             throw new ApplicationException(USER_NOT_FOUND);
         }
@@ -171,8 +169,6 @@ public class StoreServiceV2 {
 //        Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
 //        return StoreResponseDto.toDto(store);
 //    }
-
-
 
     private void isAdmin(Long userId) {
         UserResponse user = userGrpcClient.getUserById(userId);

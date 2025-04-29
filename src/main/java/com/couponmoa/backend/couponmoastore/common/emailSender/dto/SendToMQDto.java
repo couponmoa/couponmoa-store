@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class SendToMQDto {
-//    private List<String> emailList;coupon-create-queue
+//    private List<String> emailList;
 //    private String subject;
 //    private String text;
 //    private String name;
