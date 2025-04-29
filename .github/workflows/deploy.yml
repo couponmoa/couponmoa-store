@@ -39,7 +39,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle (after creating yml)
-        run: ./gradlew generateProto build -x test
+        run: ./gradlew generateProto build -x test -x asciidoctor
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
