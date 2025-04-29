@@ -70,8 +70,7 @@ public class UserStoreSubscribeServiceTest {
             Long userId = 1L;
             Store store = new Store(userId, "name", "des", "address");
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
-            given(userStoreSubRepository.existsByUserIdAndStore(anyLong(), any(Store.class)))
-                    .willThrow(new ApplicationException(ErrorCode.DUPLICATED_USER_COUPON));
+            given(userStoreSubRepository.existsByUserIdAndStore(anyLong(), any(Store.class))).willReturn(true);
 
             ApplicationException exception = assertThrows(ApplicationException.class,
                     () -> userStoreSubscribeService.subscribeStore(userId, storeId));

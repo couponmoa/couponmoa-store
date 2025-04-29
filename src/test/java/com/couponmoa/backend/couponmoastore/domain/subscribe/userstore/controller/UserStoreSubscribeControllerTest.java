@@ -47,7 +47,7 @@ public class UserStoreSubscribeControllerTest {
         Long userId = 1L;
         Long storeId = 1L;
         willDoNothing().given(userStoreSubServ).unSubscribeCoupon(anyLong(),anyLong());
-        mockMvc.perform(post("/api/v1/stores/{storeId}/subscriptions",storeId)
+        mockMvc.perform(post("/api/v1/stores/{storeId}/unsubscriptions",storeId)
                         .header("X-User-Id", String.valueOf(userId)))
                 .andExpect(status().isOk());
     }
