@@ -24,7 +24,8 @@ public class SqsService {
     public <T> void sendMessage(QueueType type, T message) {
         try {
             log.info(">>> Sending message to SQS: {}", message);
-            sqsTemplate.send(type.getQueueEndpoint(), message);
+            String messageQ = objectMapper.writeValueAsString(message);
+            sqsTemplate.send(type.getQueueEndpoint(), messageQ);
             log.info(">>> Message sent successfully.");
         } catch (Exception e) {
             log.error(">>> Failed to send message : {}", e.getMessage(), e);
