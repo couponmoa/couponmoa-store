@@ -198,7 +198,7 @@ class UserCouponServiceTest {
 
         @Test
         @Order(7)
-        void 쿠폰_발급_레디스_스크립트_오류_실패() {
+        void 쿠폰_발급_redis_스크립트_오류_실패() {
             // Given
             Coupon coupon = mock(Coupon.class);
             given(coupon.getStatus()).willReturn(CouponStatus.IN_PROGRESS);
