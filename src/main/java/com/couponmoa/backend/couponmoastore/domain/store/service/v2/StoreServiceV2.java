@@ -155,22 +155,22 @@ public class StoreServiceV2 {
 
     // findStoresByKeyword 실패 시 fallback 메서드
 
-    public List<StoreResponseDto> fallbackFindStoresByKeyword(StoreCursor cursor, int size, Exception e) {
-
-        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
-
-        List<Store> stores = storeRepository.findAll();
-        return stores.stream().map(StoreResponseDto::toDto).collect(Collectors.toList());
-    }
+//    public List<StoreResponseDto> fallbackFindStoresByKeyword(StoreCursor cursor, int size, Exception e) {
+//
+//        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
+//
+//        List<Store> stores = storeRepository.findAll();
+//        return stores.stream().map(StoreResponseDto::toDto).collect(Collectors.toList());
+//    }
     // findStore 실패 시 fallback 메서드
 
-    public StoreResponseDto fallbackFindStore(Long storeId, Exception e) {
-
-        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
-
-        Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
-        return StoreResponseDto.toDto(store);
-    }
+//    public StoreResponseDto fallbackFindStore(Long storeId, Exception e) {
+//
+//        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
+//
+//        Store store = storeRepository.findByIdOrElseThrow(storeId, ErrorCode.STORE_NOT_FOUND);
+//        return StoreResponseDto.toDto(store);
+//    }
 
 
 

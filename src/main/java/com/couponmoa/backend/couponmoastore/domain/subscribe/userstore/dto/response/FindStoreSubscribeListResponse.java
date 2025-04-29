@@ -2,11 +2,13 @@ package com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.dto.resp
 
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.entity.UserStoreSubscribe;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class FindStoreSubscribeListResponse {
     private Long id;
     private String name;
