@@ -100,7 +100,7 @@ public class StoreControllerV2 {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    @GetMapping("/test/user")
     public ResponseEntity<String> measureFindById() {
         long result = testService.measureFindById();
         return ResponseEntity.ok().body(result + "초 소요");
