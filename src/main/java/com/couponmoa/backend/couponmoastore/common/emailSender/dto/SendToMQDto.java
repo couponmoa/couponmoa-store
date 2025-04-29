@@ -10,15 +10,23 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class SendToMQDto {
-    private List<String> emailList;
-    private String subject;
-    private String text;
-    private String name;
+//    private List<String> emailList;coupon-create-queue
+//    private String subject;
+//    private String text;
+//    private String name;
+//
+//    public SendToMQDto(List<String> emailList, String subject, String name, String text) {
+//        this.emailList = emailList;
+//        this.subject = subject;
+//        this.name = name;
+//        this.text = text;
+//    }
 
-    public SendToMQDto(List<String> emailList, String subject, String name, String text) {
+    private String storeName;
+    private List<String> emailList;
+
+    public SendToMQDto(List<String> emailList, String storeName) {
         this.emailList = emailList;
-        this.subject = subject;
-        this.name = name;
-        this.text = text;
+        this.storeName = storeName;
     }
 }

@@ -13,6 +13,7 @@ public enum ErrorCode {
 
     // subscribe
     DUPLICATED_USER_COUPON(CONFLICT, "이미 구독한 쿠폰입니다."),
+    DUPLICATED_USER_STORE(CONFLICT, "이미 구독한 가게입니다."),
     NO_SUBSCRIBER(NOT_FOUND, "구독한 유저가 없습니다."),
 
     // common
