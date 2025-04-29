@@ -35,7 +35,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with proto generation
-        run: ./gradlew generateProto build -x test
+        run: ./gradlew generateProto build -x test -x asciidoctor
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
