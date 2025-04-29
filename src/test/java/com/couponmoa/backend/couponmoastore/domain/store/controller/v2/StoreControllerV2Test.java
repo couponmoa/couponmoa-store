@@ -8,6 +8,7 @@ import com.couponmoa.backend.couponmoastore.domain.store.service.v2.StoreService
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -18,10 +19,14 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureRestDocs
 @WebMvcTest(StoreControllerV2.class)
 public class StoreControllerV2Test {
 
@@ -49,7 +54,23 @@ public class StoreControllerV2Test {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(userId))
                 .andExpect(jsonPath("$.data.name").value("name"))
-                .andExpect(jsonPath("$.data.description").value("description"));
+                .andExpect(jsonPath("$.data.description").value("description"))
+                .andDo(document("store-create",
+                        requestFields(
+                                fieldWithPath("name").description("스토어 이름"),
+                                fieldWithPath("description").description("스토어 설명"),
+                                fieldWithPath("address").description("스토어 주소")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data.id").description("스토어 ID"),
+                                fieldWithPath("data.name").description("스토어 이름"),
+                                fieldWithPath("data.description").description("스토어 설명"),
+                                fieldWithPath("data.address").description("스토어 주소")
+                        )
+                ));
     }
 
     @Test
@@ -67,7 +88,22 @@ public class StoreControllerV2Test {
                         .param("storeId", String.valueOf(storeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1));
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andDo(document("store-find-by-keyword",
+                        queryParameters(
+                                parameterWithName("keyword").description("검색 키워드").optional(),
+                                parameterWithName("storeId").description("스토어 ID (커서)").optional()
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data[].id").description("스토어 ID"),
+                                fieldWithPath("data[].name").description("스토어 이름"),
+                                fieldWithPath("data[].description").description("스토어 설명"),
+                                fieldWithPath("data[].address").description("스토어 주소")
+                        )
+                ));
     }
 
     @Test
@@ -107,7 +143,18 @@ public class StoreControllerV2Test {
                         .header("X-User-Id", String.valueOf(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1));
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andDo(document("store-find-my",
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data[].id").description("스토어 ID"),
+                                fieldWithPath("data[].name").description("스토어 이름"),
+                                fieldWithPath("data[].description").description("스토어 설명"),
+                                fieldWithPath("data[].address").description("스토어 주소")
+                        )
+                ));
     }
 
     @Test
@@ -122,7 +169,16 @@ public class StoreControllerV2Test {
                         .header("X-User-Id", String.valueOf(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1));
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andDo(document("store-find-my-simple",
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data[].id").description("스토어 ID"),
+                                fieldWithPath("data[].name").description("스토어 이름")
+                        )
+                ));
     }
 
     @Test
@@ -135,7 +191,21 @@ public class StoreControllerV2Test {
         mockMvc.perform(get("/api/v2/stores/{storeId}", storeId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(storeId))
-                .andExpect(jsonPath("$.data.name").value("name"));
+                .andExpect(jsonPath("$.data.name").value("name"))
+                .andDo(document("store-find-one",
+                        pathParameters(
+                                parameterWithName("storeId").description("스토어 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data.id").description("스토어 ID"),
+                                fieldWithPath("data.name").description("스토어 이름"),
+                                fieldWithPath("data.description").description("스토어 설명"),
+                                fieldWithPath("data.address").description("스토어 주소")
+                        )
+                ));
     }
 
     @Test
@@ -154,7 +224,26 @@ public class StoreControllerV2Test {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(userId))
                 .andExpect(jsonPath("$.data.name").value("name"))
-                .andExpect(jsonPath("$.data.description").value("description"));
+                .andExpect(jsonPath("$.data.description").value("description"))
+                .andDo(document("store-update",
+                        pathParameters(
+                                parameterWithName("storeId").description("스토어 ID")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("수정할 스토어 이름"),
+                                fieldWithPath("description").description("수정할 스토어 설명"),
+                                fieldWithPath("address").description("수정할 스토어 주소")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("status").description("응답 상태"),
+                                fieldWithPath("message").description("응답 메시지"),
+                                fieldWithPath("data.id").description("스토어 ID"),
+                                fieldWithPath("data.name").description("스토어 이름"),
+                                fieldWithPath("data.description").description("스토어 설명"),
+                                fieldWithPath("data.address").description("스토어 주소")
+                        )
+                ));
     }
 
     @Test
@@ -166,6 +255,11 @@ public class StoreControllerV2Test {
 
         mockMvc.perform(delete("/api/v2/stores/{storeId}", storeId)
                         .header("X-User-Id", String.valueOf(userId)))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andDo(document("store-delete",
+                        pathParameters(
+                                parameterWithName("storeId").description("삭제할 스토어 ID")
+                        )
+                ));
     }
 }
