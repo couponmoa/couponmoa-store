@@ -5,7 +5,7 @@ import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreCursor
 import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreRequestDto;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponseDto;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreSimpleResponse;
-import com.couponmoa.backend.couponmoastore.domain.store.service.test.UserFindByIdTestService;
+//import com.couponmoa.backend.couponmoastore.domain.store.service.test.UserFindByIdTestService;
 import com.couponmoa.backend.couponmoastore.domain.store.service.v2.StoreServiceV2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +23,7 @@ import java.util.List;
 public class StoreControllerV2 {
 
     private final StoreServiceV2 storeServiceV2;
-    private final UserFindByIdTestService testService;
+//    private final UserFindByIdTestService testService;
 
     @Operation(summary = "스토어 생성", description = "사용자가 새로운 스토어를 생성함")
 //    @PreAuthorize("hasRole('ADMIN')")
