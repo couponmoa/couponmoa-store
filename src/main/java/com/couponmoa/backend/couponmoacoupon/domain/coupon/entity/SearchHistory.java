@@ -1,4 +1,4 @@
-package com.couponmoa.backend.domain.coupon.entity;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
