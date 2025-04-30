@@ -1,12 +1,35 @@
-server:
-  port: 8083
-
 spring:
   application:
     name: coupon-server
   profiles:
     active: ${SPRING_PROFILE:local}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+  elasticsearch:
+    uris: http://localhost:9200
 
+
+server:
+  port: 8083
+
+org:
+  jobrunr:
+    dashboard:
+      enabled: true
+      port: 8000
+    background-job-server:
+      enabled: true
+    jobs:
+      metrics:
+        enabled: true
 
 management:
   endpoints:
@@ -20,3 +43,12 @@ management:
 grpc:
   server:
     port: 6565
+  client:
+    store-service:
+      address: static://localhost:9090
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+    user-service:
+      address: static://localhost:9091
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
