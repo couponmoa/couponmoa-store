@@ -1,0 +1,20 @@
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.converter;
+
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
+
+public class CouponConverter {
+
+    // Coupon 객체를 Elasticsearch 문서 형식인 Search 객체로 변환
+    public static com.couponmoa.backend.domain.coupon.entity.Search toSearchDocument(Coupon coupon) {
+        return com.couponmoa.backend.domain.coupon.entity.Search.builder()
+                .couponId(coupon.getId())
+                .name(coupon.getName())
+                .description(coupon.getDescription())
+                .discountAmount(coupon.getDiscountAmount())
+                .discountRate(coupon.getDiscountRate())
+                .minOrderAmount(coupon.getMinOrderAmount())
+                .maxDiscountAmount(coupon.getMaxDiscountAmount())
+                .expiryDate(coupon.getExpiryDate().toString())  // 날짜를 String으로 변환
+                .build();
+    }
+}
