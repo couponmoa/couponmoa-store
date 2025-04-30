@@ -1,6 +1,6 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
 
-import com.couponmoa.backend.domain.coupon.entity.Search;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Search;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

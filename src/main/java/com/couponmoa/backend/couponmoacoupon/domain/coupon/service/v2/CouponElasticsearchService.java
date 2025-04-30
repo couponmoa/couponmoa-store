@@ -2,8 +2,8 @@ package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
 
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.SearchHistoryRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.SearchRepository;
-import com.couponmoa.backend.domain.coupon.entity.Search;
-import com.couponmoa.backend.domain.coupon.entity.SearchHistory;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Search;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.SearchHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;

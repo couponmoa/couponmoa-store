@@ -1,12 +1,13 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.converter;
 
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Search;
 
 public class CouponConverter {
 
     // Coupon 객체를 Elasticsearch 문서 형식인 Search 객체로 변환
-    public static com.couponmoa.backend.domain.coupon.entity.Search toSearchDocument(Coupon coupon) {
-        return com.couponmoa.backend.domain.coupon.entity.Search.builder()
+    public static Search toSearchDocument(Coupon coupon) {
+        return Search.builder()
                 .couponId(coupon.getId())
                 .name(coupon.getName())
                 .description(coupon.getDescription())

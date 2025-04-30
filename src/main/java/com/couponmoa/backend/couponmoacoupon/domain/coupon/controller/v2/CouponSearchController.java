@@ -1,5 +1,6 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.controller.v2;
 
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Search;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2.CouponElasticsearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +18,8 @@ public class CouponSearchController {
     private final CouponElasticsearchService couponElasticsearchService;
 
     @GetMapping
-    public List<com.couponmoa.backend.domain.coupon.entity.Search> search(@RequestParam(name = "keyword") String keyword,
-                                                                          @RequestParam(name = "userId") String userId) {
+    public List<Search> search(@RequestParam(name = "keyword") String keyword,
+                               @RequestParam(name = "userId") String userId) {
         return couponElasticsearchService.recommendCoupons(keyword, userId);
     }
 }
