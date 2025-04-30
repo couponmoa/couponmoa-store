@@ -9,7 +9,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.math.BigDecimal;
 
 @Getter
-@Setter //테스트용
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
