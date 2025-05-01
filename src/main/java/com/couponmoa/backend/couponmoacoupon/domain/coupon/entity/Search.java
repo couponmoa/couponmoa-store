@@ -39,10 +39,4 @@ public class Search {
 
     @Field(name = "expiry_date", type = FieldType.Date)
     private String expiryDate;
-
-    @Field(name = "store_id", type = FieldType.Long)
-    private Long storeId;
-
-    @Field(name = "store_name", type = FieldType.Keyword)
-    private String storeName;
 }

@@ -38,7 +38,7 @@ public class CouponRecommendationService {
         String prompt = "Based on the keywords " + keywords + ", recommend up to 5 coupon IDs from the following list:\n" +
                 allCoupons.stream()
                         .map(c -> String.format("ID: %d, Name: %s, Description: %s, Store: %s",
-                                c.getCouponId(), c.getName(), c.getDescription(), c.getStoreName()))
+                                c.getCouponId(), c.getName(), c.getDescription()))
                         .reduce("", (a, b) -> a + b + "\n") +
                 "Return a JSON object with a key 'recommended_coupon_ids' containing a list of up to 5 coupon IDs.";
 
