@@ -13,8 +13,8 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
-  elasticsearch:
-    uris: http://localhost:9200
+#  elasticsearch:
+#    uris: http://localhost:9200
 
 
 server:
@@ -39,6 +39,9 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    elasticsearch:
+      enabled: false
 
 grpc:
   server:

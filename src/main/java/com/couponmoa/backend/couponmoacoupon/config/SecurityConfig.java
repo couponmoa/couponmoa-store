@@ -1,7 +1,5 @@
-package com.couponmoa.backend.couponmoacoupon.config; 
+package com.couponmoa.backend.couponmoacoupon.config;
 
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,25 +9,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.SecurityContextHolderFilter; 
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Slf4j
-public class SecurityConfig {  // 이후에 공통 common모듈로 라이브러리화 예정. 
+public class SecurityConfig {  // 이후에 공통 common모듈로 라이브러리화 예정.
 
     private final GatewayAuthFilter gatewayAuthFilter;
 
-    @PostConstruct
-    public void checkSecurityConfigLoaded() {
-        log.debug("SecurityConfig 로드, CSRF Disabled 동작 확인");
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.debug("SecurityFilterChain Bean생성, CSRF 비활성화 성공");
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
