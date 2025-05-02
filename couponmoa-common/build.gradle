@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'java-test-fixtures' // 모듈의 테스트 코드 중 다른 모듈에서 재사용하고 싶은 부분을 소스셋과 구성을 통해 관리, 공개
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -23,6 +24,28 @@ dependencyManagement {
     }
 }
 
+// 테스트 소스셋 정의
+sourceSets {
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+// 테스트 관련 설정을 다른 모듈에서 접근할 수 있도록 선언
+configurations {
+    testRuntimeClasspath {
+        // 다른 프로젝트에서 이 설정을 의존할 수 있도록 허용
+    }
+    testImplementation {
+        // 다른 프로젝트에서 이 설정을 의존할 수 있도록 허용
+    }
+}
+
 dependencies {
 
     // QueryDsl
@@ -34,8 +57,6 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Spring Core & Web (HttpStatus, HandlerMethodValidationException, MethodValidationResult 등)
     implementation 'org.springframework:spring-context'
@@ -58,7 +79,6 @@ dependencies {
     implementation 'io.lettuce:lettuce-core'
 
     // SQS (SqsService 용)
-    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
@@ -72,26 +92,44 @@ dependencies {
     }
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Testcontainers
+    testFixturesImplementation 'org.testcontainers:mysql'
+    testFixturesImplementation 'org.testcontainers:junit-jupiter'
+    testFixturesImplementation 'mysql:mysql-connector-java:8.0.28'
+    testFixturesImplementation 'org.testcontainers:testcontainers'
+
+    // Spring Boot Test Autoconfigure (Testcontainers와 함께 사용될 Spring Boot 기능을 위해 필요)
+    testFixturesImplementation 'org.springframework.boot:spring-boot-autoconfigure'
+    testFixturesImplementation 'org.springframework.boot:spring-boot-test'
+    testFixturesImplementation 'org.springframework:spring-test'
+    testFixturesCompileOnly 'org.projectlombok:lombok'
+    testFixturesAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 
 
-def querydslGeneratedDir = "$buildDir/generated/querydsl"
+def querydslGeneratedDirProvider = layout.buildDirectory.dir('generated/querydsl')
 
 sourceSets {
     main {
         java {
-            srcDirs += querydslGeneratedDir // 생성된 Q클래스 소스 경로 추가
+            srcDirs += querydslGeneratedDirProvider.get().asFile
+            srcDirs += 'build/generated/source/proto/main/java'
+            srcDirs += 'build/generated/source/proto/main/grpc'
         }
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.getGeneratedSourceOutputDirectory().set(file(querydslGeneratedDir))
+    options.getGeneratedSourceOutputDirectory().set(layout.buildDirectory.dir('generated/querydsl'))
 }
 
+
 tasks.named('clean') {
-    delete file(querydslGeneratedDir)
+    delete layout.buildDirectory.dir('generated/querydsl')
 }
 
 tasks.named('test') {

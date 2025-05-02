@@ -33,6 +33,11 @@ ext {
 }
 
 dependencies {
+    // common 모듈의 main 소스셋 의존성
+    implementation project(':couponmoa-common')
+    // common 모듈의 testFixtures 소스셋 의존성
+    testImplementation testFixtures(project(':couponmoa-common'))
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -41,10 +46,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // 캐싱 서버 장애시 fallback
     implementation 'io.github.resilience4j:resilience4j-spring-boot2:1.7.0'
-
-    // common 모듈 의존성
-    implementation project(':couponmoa-common')
 
     // actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -90,8 +93,7 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    //h2 test db
-    testImplementation 'com.h2database:h2'
+    // testImplementation 'com.h2database:h2'
 
     // s3
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.653'
@@ -112,10 +114,15 @@ dependencies {
     implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
     implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 
-    //elastic search
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.12.0' // 서버 버전과 맞춤
-    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.9'
+    // testContainer
+    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework:spring-test'
+
+//    //elastic search
+//    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+//    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.12.0' // 서버 버전과 맞춤
+//    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.9'
 
 }
 
@@ -140,12 +147,12 @@ protobuf {
     }
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslGeneratedDirProvider = layout.buildDirectory.dir('generated/querydsl')
 
 sourceSets {
     main {
         java {
-            srcDirs += querydslDir
+            srcDirs += querydslGeneratedDirProvider.get().asFile.absolutePath
             srcDirs += 'build/generated/source/proto/main/java'
             srcDirs += 'build/generated/source/proto/main/grpc'
         }
@@ -159,7 +166,7 @@ sourceSets {
 }
 
 compileJava {
-    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+    options.annotationProcessorGeneratedSourcesDirectory = querydslGeneratedDirProvider
 }
 
 tasks.processResources {
@@ -167,7 +174,7 @@ tasks.processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+    options.getGeneratedSourceOutputDirectory().set(querydslGeneratedDirProvider)
 }
 
 tasks.named('test') {
@@ -176,7 +183,7 @@ tasks.named('test') {
 }
 
 tasks.processResources {
-    exclude '**/*.proto' // 리소스 중복 제거
+    exclude '**/*.proto'
 }
 
 compileJava.dependsOn generateProto
@@ -195,6 +202,10 @@ tasks.named('asciidoctor').configure {
     doFirst {
         delete file('src/main/resources/static/docs')
     }
+}
+
+tasks.named('clean') {
+    delete rootProject.layout.buildDirectory.dir('generated/querydsl')
 }
 
 tasks.register('copyDocument', Copy) {
