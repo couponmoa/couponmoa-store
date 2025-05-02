@@ -4,11 +4,11 @@ server:
 spring:
   application:
     name: couponmoa
-    elasticsearch:
-      uris: ${ELASTIC_SEARCH_URL}
-      google:
-        api:
-          key: ${GOOGLE_API_KEY}
+#    elasticsearch:
+#      uris: ${ELASTIC_SEARCH_URL}
+#      google:
+#        api:
+#          key: ${GOOGLE_API_KEY}
   data:
     redis:
       host: ${REDIS_HOST}
