@@ -96,6 +96,9 @@ dependencies {
     // jobrunr
     implementation 'org.jobrunr:jobrunr-spring-boot-3-starter:7.4.1'
 
+    // Jackson Java 8 Date/Time 모듈 추가
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
     // gRPC
     implementation "io.grpc:grpc-netty:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"

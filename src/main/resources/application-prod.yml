@@ -54,5 +54,5 @@ management:
 
 logging:
   level:
-    com.couponmoa.backend.couponmoacoupon.config: DEBUG
-    org.springframework.security: DEBUG
+    com.couponmoa.backend.couponmoacoupon.config: INFO
+    org.springframework.security: INFO
