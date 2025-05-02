@@ -54,5 +54,5 @@ management:
 
 logging:
   level:
-    com.couponmoa.backend.couponmoacoupon.config.GatewayAuthFilter: DEBUG
+    com.couponmoa.backend.couponmoacoupon.config: DEBUG
     org.springframework.security: DEBUG
