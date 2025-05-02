@@ -58,15 +58,12 @@ jobs:
 
       - name: Build Docker image
         id: build_image
+        shell: bash
         run: |
           IMAGE_TAG=${{ github.sha }}
           FULL_IMAGE_TAG="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          
-          echo "Attempting to build image with tag: ${FULL_IMAGE_TAG}"\
-          
+          echo "Attempting to build image with tag: ${FULL_IMAGE_TAG}" 
           docker build -t "${FULL_IMAGE_TAG}" .
-          
-          shell: bash
 
       - name: Push to ECR
         run: |
