@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Component 
 @RequiredArgsConstructor 
-public class GatewayAuthFilter extends OncePerRequestFilter {
+public class GatewayAuthFilter extends OncePerRequestFilter {  // 이후에 공통 common모듈로 라이브러리화 예정 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
