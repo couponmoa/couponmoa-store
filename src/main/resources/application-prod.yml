@@ -51,3 +51,8 @@ management:
       application: ${spring.application.name} # 각 서비스 이름 자동 적용
   server:
     port: 9090
+
+logging:
+  level:
+    com.couponmoa.backend.couponmoacoupon.config.GatewayAuthFilter: DEBUG
+    org.springframework.security: DEBUG
