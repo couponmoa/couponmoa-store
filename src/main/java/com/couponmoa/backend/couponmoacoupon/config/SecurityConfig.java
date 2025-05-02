@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.config; 
+package com.couponmoa.backend.couponmoacoupon.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,24 +9,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.SecurityContextHolderFilter; 
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {  // 이후에 공통 common모듈로 라이브러리화 예정 
+
+public class SecurityConfig {  // 이후에 공통 common모듈로 라이브러리화 예정.
 
     private final GatewayAuthFilter gatewayAuthFilter;
 
-    
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-       return new BCryptPasswordEncoder();
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
