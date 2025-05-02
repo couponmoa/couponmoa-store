@@ -35,3 +35,15 @@ grpc:
       negotiation-type: plaintext
   server:
     port: 6565
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name} # 각 서비스 이름 자동 적용
+  server:
+    port: 9090
