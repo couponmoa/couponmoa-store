@@ -80,7 +80,7 @@ public class CouponController {
             @PathVariable Long couponId,
             @RequestHeader("X-User-Id") String userIdStr) {
 
-        log.info("Received X-User-Id Header for GET /api/v2/coupons/{}: '{}'", couponId, userIdStr);
+        log.warn("Received X-User-Id Header for GET /api/v2/coupons/{}: '{}'", couponId, userIdStr);
 
         Long userId;
         try {
@@ -90,7 +90,7 @@ public class CouponController {
             throw new IllegalArgumentException("Invalid X-User-Id header format: " + userIdStr);
         }
 
-        log.info("Parsed userId to Long: {}", userId);
+        log.warn("Parsed userId to Long: {}", userId);
         CouponDetailResponse couponDetail = couponService.findCoupon(couponId, userId);
         return ApiResponse.success(couponDetail);
     }
