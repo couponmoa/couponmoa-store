@@ -1,0 +1,99 @@
+plugins {
+    id 'java-library'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.couponmoa.common'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.4"
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1"
+    }
+}
+
+dependencies {
+
+    // QueryDsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Spring Core & Web (HttpStatus, HandlerMethodValidationException, MethodValidationResult 등)
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-web'
+
+    // Spring Data Commons & JPA (BaseRepository, BaseEntity 등)
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'jakarta.persistence:jakarta.persistence-api'
+    implementation 'jakarta.annotation:jakarta.annotation-api'
+
+    // Spring Security
+    implementation 'org.springframework.security:spring-security-core'
+
+    // Validation API
+    implementation 'jakarta.validation:jakarta.validation-api'
+
+    // Redis (RedisService 용)
+    implementation 'org.springframework.data:spring-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+
+    // SQS (SqsService 용)
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Configuration Properties (@ConfigurationProperties 스캔용)
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // 테스트
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-web'
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-data-jpa'
+    }
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+
+
+def querydslGeneratedDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += querydslGeneratedDir // 생성된 Q클래스 소스 경로 추가
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslGeneratedDir))
+}
+
+tasks.named('clean') {
+    delete file(querydslGeneratedDir)
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

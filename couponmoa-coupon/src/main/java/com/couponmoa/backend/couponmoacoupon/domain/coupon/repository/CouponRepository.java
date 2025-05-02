@@ -1,0 +1,46 @@
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.repository;
+
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
+import com.couponmoa.common.exception.ApplicationException;
+import com.couponmoa.common.exception.ErrorCode;
+import com.couponmoa.common.repository.BaseRepository;
+import io.micrometer.core.annotation.Timed;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+
+public interface CouponRepository extends BaseRepository<Coupon, Long> {
+
+    @Override
+    default Coupon findByIdOrElseThrow(Long aLong, ErrorCode errorCode) {
+        return BaseRepository.super.findByIdOrElseThrow(aLong, errorCode);
+    }
+
+    // 모든 CouponCategory의 쿠폰 조회 (deletedAt 제외) , 단순 전체 조회용
+    @Query("SELECT c FROM Coupon c WHERE c.deletedAt IS NULL " +
+            "ORDER BY c.issuedQuantity DESC, c.name ASC")
+    Page<Coupon> findAllSortedByIQ(Pageable pageable);
+
+    // CouponCategory에 따라 목록 조회 (deletedAt 제외) , 단순 전체 조회용
+    @Query("SELECT c FROM Coupon c WHERE c.status = :category AND c.deletedAt IS NULL " +
+            "ORDER BY c.issuedQuantity DESC, c.name ASC")
+    Page<Coupon> findAllByStatusSortedByIQ(@Param("status") CouponStatus status, Pageable pageable);
+
+    Optional<Coupon> findByIdAndDeletedAtIsNull(Long id);
+
+    @Timed(value = "coupon.find_active_by_id.time", description = "발급 시 활성 쿠폰 조회에 걸린 시간", histogram = true)
+    default Coupon findActiveByIdOrElseThrow(Long id, ErrorCode errorCode) {
+        return findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ApplicationException(errorCode, errorCode.getMessage() + " id = " + id));
+    }
+
+    boolean existsByNameAndDeletedAtIsNull(String name);
+
+    // fallback 용 기본적인 메서드
+    Page<Coupon> findByStoreId(Long storeId,Pageable pageable);
+}
+

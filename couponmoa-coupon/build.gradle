@@ -1,0 +1,208 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.3'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+}
+
+group = 'com.couponmoa.backend'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    asciidoctorExt
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    grpcVersion = '1.56.0'
+    protobufVersion = '3.23.2'
+    snippetsDir = file('build/generated-snippets')
+}
+
+dependencies {
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'io.github.resilience4j:resilience4j-spring-boot2:1.7.0'
+
+    // common 모듈 의존성
+    implementation project(':couponmoa-common')
+
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // bcrypt
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    //AWS SQS
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
+    // REST Docs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+    //test lombok
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // queryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    //h2 test db
+    testImplementation 'com.h2database:h2'
+
+    // s3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.653'
+
+    // jobrunr
+    implementation 'org.jobrunr:jobrunr-spring-boot-3-starter:7.4.1'
+
+    // gRPC
+    implementation "io.grpc:grpc-netty:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'net.devh:grpc-spring-boot-starter:3.1.0.RELEASE'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // protobuf
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+
+    //elastic search
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.12.0' // 서버 버전과 맞춤
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.9'
+
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                java {}
+            }
+            task.plugins {
+                grpc {}
+            }
+        }
+    }
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += querydslDir
+            srcDirs += 'build/generated/source/proto/main/java'
+            srcDirs += 'build/generated/source/proto/main/grpc'
+        }
+        proto {
+            srcDirs 'src/main/proto'
+        }
+        resources {
+            exclude '**/*.proto'
+        }
+    }
+}
+
+compileJava {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    outputs.dir snippetsDir
+}
+
+tasks.processResources {
+    exclude '**/*.proto' // 리소스 중복 제거
+}
+
+compileJava.dependsOn generateProto
+
+// asciidoctor task 정의
+tasks.named('asciidoctor', org.asciidoctor.gradle.jvm.AsciidoctorTask) {
+    configurations 'asciidoctorExt'
+    baseDirFollowsSourceFile()
+    inputs.dir snippetsDir
+    attributes 'snippets': snippetsDir
+    dependsOn test
+}
+
+// asciidoctor 실행 전 static/docs 폴더 삭제
+tasks.named('asciidoctor').configure {
+    doFirst {
+        delete file('src/main/resources/static/docs')
+    }
+}
+
+tasks.register('copyDocument', Copy) {
+    dependsOn tasks.named('asciidoctor')
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static/docs")
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('copyDocument')
+}
