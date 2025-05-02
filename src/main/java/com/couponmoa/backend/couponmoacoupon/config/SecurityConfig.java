@@ -15,7 +15,6 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 @RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-
 public class SecurityConfig {  // 이후에 공통 common모듈로 라이브러리화 예정.
 
     private final GatewayAuthFilter gatewayAuthFilter;
