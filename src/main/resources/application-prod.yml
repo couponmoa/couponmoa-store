@@ -54,5 +54,5 @@ management:
 
 logging:
   level:
-    com.couponmoa.backend.couponmoacoupon.config: INFO
-    org.springframework.security: INFO
+    com.couponmoa.backend.couponmoacoupon.config: WARN
+    org.springframework.security: WARN
