@@ -15,8 +15,8 @@ env:
   RDS_URL: ${{ secrets.RDS_URL }}
   RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
   RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-  ELASTIC_SEARCH_URL: ${{ ELASTIC_SEARCH_URL }}
-  GOOGLE_API_KEY: ${{ GOOGLE_API_KEY }}
+#  ELASTIC_SEARCH_URL: ${{ ELASTIC_SEARCH_URL }}
+#  GOOGLE_API_KEY: ${{ GOOGLE_API_KEY }}
 
 jobs:
   deploy:
