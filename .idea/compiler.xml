@@ -8,7 +8,6 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="couponmoa-backend.test" />
         <module name="couponmoa-backend.couponmoa-common.test" />
         <module name="couponmoa-backend.couponmoa-common.testFixtures" />
         <module name="couponmoa-backend.couponmoa-coupon.test" />
@@ -47,7 +46,6 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mysema.commons/mysema-commons-lang/0.2.4/d09c8489d54251a6c22fbce804bdd4a070557317/mysema-commons-lang-0.2.4.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jdt/ecj/3.26.0/4837be609a3368a0f7e7cf0dc1bdbc7fe94993de/ecj-3.26.0.jar" />
         </processorPath>
-        <module name="couponmoa-backend.main" />
         <module name="couponmoa-backend.couponmoa-coupon.main" />
       </profile>
     </annotationProcessing>
