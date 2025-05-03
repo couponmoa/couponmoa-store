@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.main.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.test.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.testFixtures.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-common/couponmoa-backend.couponmoa-common.testFixtures.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-coupon/couponmoa-backend.couponmoa-coupon.main.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-coupon/couponmoa-backend.couponmoa-coupon.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-coupon/couponmoa-backend.couponmoa-coupon.test.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-coupon/couponmoa-backend.couponmoa-coupon.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-backend.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/couponmoa-backend.test.iml" filepath="$PROJECT_DIR$/.idea/modules/couponmoa-backend.test.iml" />
     </modules>

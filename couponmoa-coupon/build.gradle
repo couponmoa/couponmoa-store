@@ -6,6 +6,10 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
+springBoot {
+    mainClass = 'com.couponmoa.backend.couponmoacoupon.CouponmoaCouponApplication'
+}
+
 configurations {
     compileOnly { extendsFrom annotationProcessor }
     asciidoctorExt
