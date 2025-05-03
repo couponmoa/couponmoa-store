@@ -21,7 +21,6 @@ import com.couponmoa.grpc.store.StoreResponse;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

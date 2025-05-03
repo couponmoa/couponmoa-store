@@ -3,8 +3,6 @@ package com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.contro
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.dto.response.FindCouponSubscribeListResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
 import com.couponmoa.common.dto.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,6 @@ public class UserCouponSubscribeController {
 
     @PostMapping("/{couponId}/subscriptions")
     public ResponseEntity<ApiResponse<Void>> subscribeCoupon(@RequestHeader("X-User-Id") Long userId,
-                                                             @Parameter(description = "구독할 쿠폰 id", required = true)
                                                              @PathVariable Long couponId) {
         userCouponSubscribeService.subscribeCoupon(userId, couponId);
 
@@ -29,7 +26,6 @@ public class UserCouponSubscribeController {
 
     @PostMapping("/{couponId}/unsubscriptions")
     public ResponseEntity<ApiResponse<Void>> unsubscribeCoupon(@RequestHeader("X-User-Id") Long userId,
-                                                               @Parameter(description = "구독할 쿠폰 id", required = true)
                                                                @PathVariable Long couponId) {
         userCouponSubscribeService.unSubscribeCoupon(userId, couponId);
 

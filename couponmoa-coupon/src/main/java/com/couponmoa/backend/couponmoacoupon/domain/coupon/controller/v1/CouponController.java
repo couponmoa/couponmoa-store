@@ -10,7 +10,6 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSi
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
 import com.couponmoa.common.dto.ApiResponse;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,7 @@ import java.util.List;
 public class CouponController {
 
     private final CouponService couponService;
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<CouponIdResponse>> createCoupon(
@@ -54,13 +54,11 @@ public class CouponController {
         return ApiResponse.success(coupons);
     }
 
-    @GetMapping("/store/{storeId}")
+    @GetMapping("/stores/{storeId}")
     public ApiResponse<Page<CouponSimpleResponse>> findCouponsByStore(
             @PathVariable Long storeId,
             @ModelAttribute CouponSearchByStoreRequest requestDto,
-            @Parameter(description = "페이지당 쿠폰 수", example = "10")
             @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "조회할 페이지 번호 (1부터 시작)", example = "1")
             @RequestParam(defaultValue = "1") int page) {
 
         Page<CouponSimpleResponse> coupons = couponService.findCouponsByStore(storeId, requestDto, size, page);

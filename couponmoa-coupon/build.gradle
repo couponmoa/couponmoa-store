@@ -34,9 +34,9 @@ ext {
 
 dependencies {
     // common 모듈의 main 소스셋 의존성
-    implementation project(':couponmoa-common')
+    implementation(project(':couponmoa-common'))
     // common 모듈의 testFixtures 소스셋 의존성
-    testImplementation testFixtures(project(':couponmoa-common'))
+    testImplementation(testFixtures(project(':couponmoa-common')))
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -115,6 +115,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
     testImplementation 'org.springframework.boot:spring-boot-test'
     testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:mysql'
 
 //    //elastic search
 //    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'

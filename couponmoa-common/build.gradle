@@ -58,10 +58,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // Spring Core & Web (HttpStatus, HandlerMethodValidationException, MethodValidationResult 등)
-    implementation 'org.springframework:spring-context'
-    implementation 'org.springframework:spring-web'
-
     // Spring Data Commons & JPA (BaseRepository, BaseEntity 등)
     implementation 'org.springframework.data:spring-data-commons'
     implementation 'org.springframework.data:spring-data-jpa'
@@ -69,10 +65,12 @@ dependencies {
     implementation 'jakarta.annotation:jakarta.annotation-api'
 
     // Spring Security
-    implementation 'org.springframework.security:spring-security-core'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // Validation API
     implementation 'jakarta.validation:jakarta.validation-api'
+    // 이 의존성은 common 모듈을 사용하는 다른 모듈에서도 필요하기 때문에 api 스코프 사용
+    api 'jakarta.servlet:jakarta.servlet-api'
 
     // Redis (RedisService 용)
     implementation 'org.springframework.data:spring-data-redis'

@@ -22,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,6 +52,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CouponServiceTest {
 
     @Mock
@@ -74,6 +77,7 @@ class CouponServiceTest {
     private StoreResponse storeResponse;
     private final Long ADMIN_USER_ID = 1L;
     private final Long STORE_ID = 1L;
+    private String storeAlertUrlValue = "http://mock-email-service";
 
     @BeforeEach
     void setUp() {
@@ -99,6 +103,8 @@ class CouponServiceTest {
                 .expiryDate(LocalDateTime.now().plusMonths(1))
                 .status(CouponStatus.UPCOMING)
                 .build();
+
+        ReflectionTestUtils.setField(couponService, "storeAlertUrl", storeAlertUrlValue);
     }
 
     @Test
@@ -110,6 +116,15 @@ class CouponServiceTest {
                 .discountAmount(BigDecimal.valueOf(2000))
                 .storeId(STORE_ID)
                 .build();
+
+        when(restTemplate.exchange(
+                eq(storeAlertUrlValue),
+                eq(HttpMethod.POST),
+                any(),
+                any(ParameterizedTypeReference.class),
+                anyLong()
+             ))
+            .thenReturn(ResponseEntity.ok().build());
 
         when(storeGrpcClient.getStoreById(STORE_ID)).thenReturn(storeResponse);
         when(couponRepository.existsByNameAndDeletedAtIsNull(request.getName())).thenReturn(false);
@@ -134,8 +149,13 @@ class CouponServiceTest {
         verify(couponRepository).save(any(Coupon.class));
         verify(restTemplate).exchange(anyString(), eq(HttpMethod.POST), any(),
                 any(ParameterizedTypeReference.class), eq(STORE_ID));
+        verify(restTemplate).exchange(
+                eq(storeAlertUrlValue),
+                eq(HttpMethod.POST),
+                any(),
+                any(ParameterizedTypeReference.class),
+                eq(STORE_ID));
     }
-
 
     @Test
     void 쿠폰_생성_실패_중복된_이름() {

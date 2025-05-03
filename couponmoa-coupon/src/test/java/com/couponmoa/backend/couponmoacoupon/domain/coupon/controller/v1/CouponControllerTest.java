@@ -10,7 +10,6 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSi
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -20,10 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,19 +53,6 @@ class CouponControllerTest {
     @MockitoBean
     private CouponService couponService;
 
-    @BeforeEach
-    void setUp() {
-        Long adminUserId = 1L;
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                String.valueOf(adminUserId),
-                null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
-        );
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(authentication);
-        SecurityContextHolder.setContext(securityContext);
-    }
-
     @Test
     @WithMockUser(roles = "ADMIN")
     void 쿠폰_생성_성공() throws Exception {
@@ -90,9 +72,10 @@ class CouponControllerTest {
         when(couponService.createCoupon(any(CouponCreateRequest.class))).thenReturn(response);
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v2/coupons")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/coupons")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
@@ -139,11 +122,12 @@ class CouponControllerTest {
         when(couponService.findCouponsByKeyword(any(), any(), anyInt())).thenReturn(coupons);
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v2/coupons")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/coupons")
                         .param("keyword", "키워드")
                         .param("size", "5")
                         .param("id", "10")
-                        .param("issuedQuantity", "50"))
+                        .param("issuedQuantity", "50")
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
@@ -194,11 +178,12 @@ class CouponControllerTest {
         when(couponService.findCouponsByStore(anyLong(), any(CouponSearchByStoreRequest.class), anyInt(), anyInt())).thenReturn(couponsPage);
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v2/coupons/store/{storeId}", storeId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/coupons/stores/{storeId}", storeId)
                         .param("page", "1")
                         .param("size", "10")
                         .param("keyword", "스토어")
-                        .param("status", "IN_PROGRESS"))
+                        .param("status", "IN_PROGRESS")
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
@@ -270,11 +255,12 @@ class CouponControllerTest {
                 .endDate(now.plusDays(10))
                 .expiryDate(now.plusMonths(2))
                 .build();
-        when(couponService.findCoupon(anyLong(), anyLong())).thenReturn(detailResponse);
+        when(couponService.findCoupon(eq(couponId), anyLong())).thenReturn(detailResponse);
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v2/coupons/{couponId}", couponId)
-                        .header("X-User-Id", "1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/coupons/{couponId}", couponId)
+                        .header("X-User-Id", "2")
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
@@ -321,12 +307,13 @@ class CouponControllerTest {
                 .build();
 
         CouponIdResponse response = new CouponIdResponse(couponId);
-        when(couponService.updateCoupon(anyLong(), any(CouponUpdateRequest.class))).thenReturn(response);
+        when(couponService.updateCoupon(eq(couponId), any(CouponUpdateRequest.class))).thenReturn(response);
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v2/coupons/{couponId}", couponId)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/coupons/{couponId}", couponId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
@@ -363,16 +350,15 @@ class CouponControllerTest {
     void 쿠폰_삭제_성공() throws Exception {
         // Given
         Long couponId = 1L;
-        doNothing().when(couponService).deleteCoupon(anyLong());
+        doNothing().when(couponService).deleteCoupon(eq(couponId));
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v2/coupons/{couponId}", couponId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/coupons/{couponId}", couponId)
+                )
                 .andDo(print())
                 .andExpect(status().isNoContent())
                 .andDo(document("coupon-delete",
                         pathParameters(
-                                parameterWithName("couponId").description("삭제할 쿠폰 ID")
-                        )
-                ));
+                                parameterWithName("couponId").description("삭제할 쿠폰 ID"))));
     }
 }
