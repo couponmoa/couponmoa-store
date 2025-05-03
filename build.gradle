@@ -11,36 +11,36 @@ allprojects {
     version = '0.0.1-SNAPSHOT'
 
     repositories {
-        mavenCentral() // 모든 프로젝트에 중앙 메이븐 저장소 설정
+        mavenCentral()
     }
 }
+
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
 
-
-    if (project.name == 'couponmoa-common') {
-        bootJar {
+    tasks.named('bootJar') {
+        if (project.name == 'couponmoa-common') {
             enabled = false
-        }
-        jar {
+        } else {
             enabled = true
         }
-    } else {
-        bootJar {
+    }
+
+    tasks.named('jar') {
+        if (project.name == 'couponmoa-common') {
             enabled = true
-        }
-        jar {
+        } else {
             enabled = false
         }
     }
 }
 
 dependencies {
+    dependencyManagement {
+        imports {
+            mavenBom('org.springframework.boot:spring-boot-dependencies:3.4.4')
+        }
+    }
 }
-
-
-
-
-
