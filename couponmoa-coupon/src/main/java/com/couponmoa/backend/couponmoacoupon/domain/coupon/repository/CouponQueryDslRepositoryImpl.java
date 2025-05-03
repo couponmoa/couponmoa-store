@@ -24,13 +24,12 @@ import java.util.List;
 public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final QCoupon coupon = QCoupon.coupon;
 
     @Override
     public Page<CouponSimpleResponse> searchCouponsByStore(Long storeId, String keyword, CouponStatus status,
                                                            BigDecimal discountAmount, BigDecimal discountRate,
                                                            LocalDateTime startDate, Pageable pageable) {
-        QCoupon coupon = QCoupon.coupon;
-        QCoupon.coupon.storeId.eq(storeId);
 
         List<CouponSimpleResponse> content = queryFactory
                 .select(Projections.constructor(
@@ -75,8 +74,6 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
     @Override
     public List<CouponSimpleResponse> searchCouponsByKeyword(CouponStatus status, CouponCursor cursor, int size) {
 
-        QCoupon coupon = QCoupon.coupon;
-
         BooleanExpression keywordFilter = keywordContains(cursor.keyword());
 
         return queryFactory
@@ -100,33 +97,31 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
     }
 
     private BooleanExpression storeIdEquals(Long storeId) {
-        return storeId == null ? null : QCoupon.coupon.storeId.eq(storeId);
+        return storeId == null ? null : coupon.storeId.eq(storeId);
     }
 
     private BooleanExpression keywordContains(String keyword) {
-        return (keyword == null || keyword.isBlank()) ? null : QCoupon.coupon.name.containsIgnoreCase(keyword);
+        return (keyword == null || keyword.isBlank()) ? null : coupon.name.containsIgnoreCase(keyword);
     }
 
     private BooleanExpression couponStatusEq(CouponStatus status) {
-        return status == null ? null : QCoupon.coupon.status.eq(status);
+        return status == null ? null : coupon.status.eq(status);
     }
 
     private BooleanExpression couponDiscountAmountEq(BigDecimal discountAmount) {
-        return discountAmount == null ? null : QCoupon.coupon.discountAmount.eq(discountAmount);
+        return discountAmount == null ? null : coupon.discountAmount.eq(discountAmount);
     }
 
     private BooleanExpression couponDiscountRateEq(BigDecimal discountRate) {
-        return discountRate == null ? null : QCoupon.coupon.discountRate.eq(discountRate);
+        return discountRate == null ? null : coupon.discountRate.eq(discountRate);
     }
 
     private BooleanExpression couponStartDateAfter(LocalDateTime startDate) {
-        return startDate == null ? null : QCoupon.coupon.startDate.after(startDate);
+        return startDate == null ? null : coupon.startDate.after(startDate);
     }
 
     private BooleanExpression cursorFilter(CouponCursor cursor) {
         if (cursor == null) return null;
-
-        QCoupon coupon = QCoupon.coupon;
 
         BooleanExpression filter = null;
 
@@ -166,7 +161,6 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
     }
 
     private OrderSpecifier<?>[] orderSpecifiers() {
-        QCoupon coupon = QCoupon.coupon;
 
         return new OrderSpecifier[]{
                 coupon.issuedQuantity.desc(),

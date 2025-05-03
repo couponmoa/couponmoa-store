@@ -55,3 +55,7 @@ grpc:
       address: static://localhost:9091
       enableKeepAlive: true
       keepAliveWithoutCalls: true
+
+app:
+  store:
+    alert-url: http://couponmoa-dev-store-service.couponmoa.local:8082/api/v1/stores/{storeId}/alert

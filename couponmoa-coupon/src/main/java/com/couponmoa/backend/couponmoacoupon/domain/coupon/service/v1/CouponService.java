@@ -12,6 +12,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc.StoreGrpcClient;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponQueryDslRepository;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepository;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.util.ResolvedDates;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
 import com.couponmoa.common.dto.ApiResponse;
 import com.couponmoa.common.exception.ApplicationException;
@@ -20,8 +21,10 @@ import com.couponmoa.grpc.store.StoreResponse;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
@@ -38,7 +41,6 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus.editStatus;
 
@@ -47,12 +49,14 @@ import static com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponSt
 @Slf4j
 public class CouponService {
 
-    private static final String STORE_ALERT_URL = "http://couponmoa-dev-store-service.couponmoa.local:8082/api/v1/stores/{storeId}/alert";
     private final CouponRepository couponRepository;
     private final CouponQueryDslRepository couponQueryDslRepository;
     private final StoreGrpcClient storeGrpcClient;
     private final UserCouponSubscribeService userCouponSubscribeService;
     private final RestTemplate restTemplate;
+
+    @Value("${app.store.alert-url}")
+    private String storeAlertUrl;
 
     @Timed(value = "coupon.create.time", description = "쿠폰 생성에 걸린 시간", histogram = true)
     @Counted(value = "coupon.create.count", description = "생성된 쿠폰 수")
@@ -80,15 +84,12 @@ public class CouponService {
         if (!isDiscountAmountDefault && !isDiscountRateDefault) {
             throw new ApplicationException(ErrorCode.INVALID_DISCOUNT_SETTING);
         }
-
         // 최대 할인 금액은 정액 할인 금액보다 커야함.
         if (!isDiscountAmountDefault && requestDto.getMaxDiscountAmount() != null) {
             if (requestDto.getDiscountAmount().compareTo(requestDto.getMaxDiscountAmount()) > 0) {
                 throw new ApplicationException(ErrorCode.DISCOUNT_EXCEEDS_MAX);
             }
         }
-
-
 
         // 날짜 검증
         validateDates(requestDto.getStartDate(), requestDto.getEndDate(), requestDto.getExpiryDate(), true);
@@ -109,7 +110,6 @@ public class CouponService {
                 .build();
 
         Coupon savedCoupon = couponRepository.save(newCoupon);
-
         sendEmail(requestDto.getStoreId());
 
         return new CouponIdResponse(savedCoupon.getId());
@@ -198,7 +198,7 @@ public class CouponService {
 
         // 쿠폰 상태 업데이트 (날짜, 발급수량에 따라)
         CouponStatus oldStatus = coupon.getStatus();
-        CouponStatus newStatus = editStatus(resolvedDates.startDate, resolvedDates.endDate);
+        CouponStatus newStatus = editStatus(resolvedDates.startDate(), resolvedDates.endDate());
 
         // 상태가 실제로 변경되었을때만 updateStatus
         if (oldStatus != newStatus) {
@@ -295,13 +295,6 @@ public class CouponService {
         }
     }
 
-    // 쿠폰 수정시에 요청 dto의 값과 기존 날짜 값을 고려해 실제 수정될 날짜 값을 담는 내부 record 클래스.
-    private static record ResolvedDates(
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            LocalDateTime expiryDate
-    ) {}
-
     private static ResolvedDates resolveDates(CouponUpdateRequest requestDto, Coupon coupon) {
         LocalDateTime startDate = requestDto.getStartDate() != null ? requestDto.getStartDate() : coupon.getStartDate();
         LocalDateTime endDate = requestDto.getEndDate() != null ? requestDto.getEndDate() : coupon.getEndDate();
@@ -313,7 +306,7 @@ public class CouponService {
     private void sendEmail(Long storeId) {
         try {
             ResponseEntity<ApiResponse<List<String>>> response = restTemplate.exchange(
-                    STORE_ALERT_URL,
+                    storeAlertUrl,
                     HttpMethod.POST,
                     null,
                     new ParameterizedTypeReference<>() {},
