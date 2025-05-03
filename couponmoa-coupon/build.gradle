@@ -41,7 +41,7 @@ dependencies {
 //    compileProtoPath 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.mysql:mysql-connector-j'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.653'
     implementation 'org.jobrunr:jobrunr-spring-boot-3-starter:7.4.1'
