@@ -82,6 +82,12 @@ dependencies {
 
 }
 
+bootJar {
+    archiveBaseName.set('couponmoa-coupon')
+    version = '0.0.1-SNAPSHOT'
+    enabled = true
+}
+
 protobuf {
     protoc { artifact = "com.google.protobuf:protoc:${protobufVersion}" }
     plugins {

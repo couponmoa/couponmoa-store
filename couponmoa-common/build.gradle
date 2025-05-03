@@ -81,6 +81,11 @@ dependencies {
     testFixturesAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+jar {
+    archiveBaseName.set('couponmoa-common')
+    archiveVersion.set('0.0.1-SNAPSHOT')
+}
+
 configurations {compileClasspath {repositories {mavenCentral()}}}
 
 
