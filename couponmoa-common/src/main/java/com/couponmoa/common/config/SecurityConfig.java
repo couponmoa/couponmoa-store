@@ -34,10 +34,7 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-resources/**",
                                 "/webjars/**",
                                 "/actuator/**",
                                 "/health").permitAll()
