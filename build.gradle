@@ -1,10 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/release" }
+        gradlePluginPortal()
+
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.4.4"
+    }
+}
+
 plugins {
     id 'java'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.springframework.boot' version '3.4.4'
+    id 'org.springframework.boot' version '3.4.4' apply false
 }
-
-apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group = 'com.couponmoa.backend'
@@ -12,35 +22,31 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://repo.spring.io/release" }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots/" }
     }
 }
-
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'org.springframework.boot'
 
-    tasks.named('bootJar') {
-        if (project.name == 'couponmoa-common') {
-            enabled = false
-        } else {
-            enabled = true
+    dependencies {
+        dependencyManagement {
+            imports {
+                mavenBom('org.springframework.boot:spring-boot-dependencies:3.4.4')
+            }
         }
     }
 
-    tasks.named('jar') {
-        if (project.name == 'couponmoa-common') {
-            enabled = true
-        } else {
-            enabled = false
-        }
+    tasks.withType(org.springframework.boot.gradle.tasks.bundling.BootJar).configureEach {
+        enabled = project.name != 'couponmoa-common'
     }
-}
 
-dependencies {
-    dependencyManagement {
-        imports {
-            mavenBom('org.springframework.boot:spring-boot-dependencies:3.4.4')
-        }
+    tasks.withType(Jar).configureEach {
+        enabled = project.name == 'couponmoa-common'
     }
 }
