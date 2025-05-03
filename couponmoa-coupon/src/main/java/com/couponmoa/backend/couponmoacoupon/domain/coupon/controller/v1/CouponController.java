@@ -68,8 +68,19 @@ public class CouponController {
     @GetMapping("/{couponId}")
     public ApiResponse<CouponDetailResponse> findCoupon(
             @PathVariable Long couponId,
-            @RequestHeader("X-User-Id") Long userId) {
+            @RequestHeader("X-User-Id") String userIdStr) {
 
+        log.warn("Received X-User-Id Header for GET /api/v2/coupons/{}: '{}'", couponId, userIdStr);
+
+        Long userId;
+        try {
+            userId = Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            log.error("Invalid X-User-Id format: {}", userIdStr, e);
+            throw new IllegalArgumentException("Invalid X-User-Id header format: " + userIdStr);
+        }
+
+        log.warn("Parsed userId to Long: {}", userId);
         CouponDetailResponse couponDetail = couponService.findCoupon(couponId, userId);
         return ApiResponse.success(couponDetail);
     }
