@@ -25,7 +25,6 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    // 조회 요청에 storeId값이 있을 때 쿠폰 목록 조회, store별로 쿠폰은 많지 않을 것이기 때문에, offset 방식
     @Override
     public Page<CouponSimpleResponse> searchCouponsByStore(Long storeId, String keyword, CouponStatus status,
                                                            BigDecimal discountAmount, BigDecimal discountRate,
@@ -73,13 +72,11 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
         return new PageImpl<>(content, pageable, totalCount != null ? totalCount : 0);
     }
 
-    // storeId가 없을때 keyword로 조회 (keyword는 없을수도, 그럼 issuedQuantity와 name 기준 정렬, 전체 쿠폰 조회), cursor방식)
     @Override
     public List<CouponSimpleResponse> searchCouponsByKeyword(CouponStatus status, CouponCursor cursor, int size) {
 
         QCoupon coupon = QCoupon.coupon;
 
-        // keyword가 있는 경우에만 필터링을 적용
         BooleanExpression keywordFilter = keywordContains(cursor.keyword());
 
         return queryFactory

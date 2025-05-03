@@ -1,7 +1,7 @@
 package com.couponmoa.backend.couponmoacoupon.domain.coupon.grpc;
 
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.entity.Coupon;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2.CouponService;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
 import com.couponmoa.grpc.coupon.CouponDetailResponse;
 import com.couponmoa.grpc.coupon.CouponIdRequest;
 import com.couponmoa.grpc.coupon.CouponServiceV2Grpc;

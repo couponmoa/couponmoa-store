@@ -31,9 +31,9 @@ public class Coupon extends BaseEntity {
     private BigDecimal maxDiscountAmount;
     private String description;
 
-    private LocalDateTime startDate;  // 쿠폰 발급 시작일
-    private LocalDateTime endDate;    // 쿠폰 발급 종료일
-    private LocalDateTime expiryDate; // 쿠폰 만료일
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private LocalDateTime expiryDate;
 
     @Enumerated(EnumType.STRING)
     private CouponStatus status;

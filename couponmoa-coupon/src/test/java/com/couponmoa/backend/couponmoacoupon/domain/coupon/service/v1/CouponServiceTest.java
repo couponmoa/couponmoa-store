@@ -1,6 +1,5 @@
-package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1;
 
-import com.couponmoa.common.*;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponSearchByStoreRequest;

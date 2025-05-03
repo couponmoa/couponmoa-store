@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.domain.coupon.controller.v2;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.controller.v1;
 
 import com.couponmoa.backend.couponmoacoupon.config.TestSecurityConfig;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
@@ -8,7 +8,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponDe
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponIdResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2.CouponService;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

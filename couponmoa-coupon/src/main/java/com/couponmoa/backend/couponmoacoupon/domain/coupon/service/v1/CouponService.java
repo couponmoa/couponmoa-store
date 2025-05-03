@@ -1,6 +1,5 @@
-package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1;
 
-import com.couponmoa.common.*;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponSearchByStoreRequest;
@@ -52,7 +51,7 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final CouponQueryDslRepository couponQueryDslRepository;
     private final StoreGrpcClient storeGrpcClient;
-    private final UserCouponSubscribeService userCouponSubServ;
+    private final UserCouponSubscribeService userCouponSubscribeService;
     private final RestTemplate restTemplate;
 
     @Timed(value = "coupon.create.time", description = "쿠폰 생성에 걸린 시간", histogram = true)
@@ -63,7 +62,6 @@ public class CouponService {
 
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
         StoreResponse storeResponse = validateStoreOwnerAndGetStore(requestDto.getStoreId());
-
         // 이름 중복 검증 추가
         if (couponRepository.existsByNameAndDeletedAtIsNull(requestDto.getName())) {
             throw new ApplicationException(ErrorCode.DUPLICATE_RESOURCE, "이미 존재하는 쿠폰 이름입니다.");
@@ -73,7 +71,6 @@ public class CouponService {
         // discountAmount와 discountRate 중 하나는 반드시 0이어야 함 (변액 할인과 정액 할인을 동시에 제공하는 쿠폰은 없다.)
         boolean isDiscountAmountDefault = requestDto.getDiscountAmount().compareTo(BigDecimal.ZERO) == 0;
         boolean isDiscountRateDefault = requestDto.getDiscountRate().compareTo(BigDecimal.ZERO) == 0;
-
         // 정액 할인이나 변액 할인 둘중 하나는 설정 해야함.
         if (isDiscountAmountDefault && isDiscountRateDefault) {
             throw new ApplicationException(ErrorCode.DISCOUNT_REQUIRED);
@@ -121,7 +118,7 @@ public class CouponService {
     @Timed(value = "coupon.find_by_keyword.time", description = "키워드로 쿠폰 조회에 걸린 시간", histogram = true)
     @Counted(value = "coupon.find_by_keyword.count", description = "키워드로 쿠폰 조회 횟수")
     @Cacheable(value = "coupons", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCacheKey(#status, #cursor, #size)")
-    @Retry(name = "couponService", fallbackMethod = "fallbackFindCouponsByKeyword")
+    @Retry(name = "couponService", fallbackMethod = "couponCacheFallback.fallbackFindCouponsByKeyword")
     @Transactional(readOnly = true)
     public List<CouponSimpleResponse> findCouponsByKeyword(CouponStatus status, CouponCursor cursor, int size) {
         log.info("findCouponsByKeyword 호출");
@@ -132,13 +129,12 @@ public class CouponService {
     @Timed(value = "coupon.find_by_store.time", description = "스토어별 쿠폰 조회에 걸린 시간", histogram = true)
     @Counted(value = "coupon.find_by_store.count", description = "스토어별 쿠폰 조회 횟수")
     @Cacheable(value = "coupons", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCacheKey(#storeId, #requestDto, #size, #page)")
-    @Retry(name = "couponService", fallbackMethod = "fallbackFindCouponsByStore")
+    @Retry(name = "couponService", fallbackMethod = "couponCacheFallback.fallbackFindCouponsByStore")
     public Page<CouponSimpleResponse> findCouponsByStore(
             Long storeId,
             CouponSearchByStoreRequest requestDto,
             int size, int page
     ) {
-        log.info("findCouponsByStore 호출");
         Pageable pageable = PageRequest.of(page - 1, size);
 
         return couponQueryDslRepository.searchCouponsByStore(
@@ -155,7 +151,7 @@ public class CouponService {
     @Timed(value = "coupon.find.time", description = "쿠폰 상세 조회에 걸린 시간", histogram = true)
     @Counted(value = "coupon.find.count", description = "쿠폰 상세 조회 횟수")
     @Cacheable(value = "couponDetails", key = "T(com.couponmoa.backend.common.util.CacheKeyGenerator).generateCouponCacheKey(#couponId)")
-    @Retry(name = "couponService", fallbackMethod = "fallbackFindCoupon")
+    @Retry(name = "couponService", fallbackMethod = "couponCacheFallback.fallbackFindCoupon")
     @Transactional(readOnly = true)
     public CouponDetailResponse findCoupon(Long couponId, Long userId) {
         Coupon coupon = couponRepository.findById(couponId)
@@ -175,10 +171,8 @@ public class CouponService {
 
         // 아직 존재하는 쿠폰인지 검증
         Coupon coupon = couponRepository.findByIdOrElseThrow(couponId, ErrorCode.COUPON_NOT_FOUND);
-
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
         validateStoreOwnerAndGetStore(requestDto.getStoreId());
-
         // 새 이름이 기존 이름과 다를 경우에만 중복 검사
         if (!coupon.getName().equals(requestDto.getName()) &&
                 couponRepository.existsByNameAndDeletedAtIsNull(requestDto.getName())) {
@@ -187,7 +181,6 @@ public class CouponService {
 
         // update 요청데이터의 dates null 검증, null 일 경우 이전 데이터로.
         ResolvedDates resolvedDates = resolveDates(requestDto, coupon);
-
         // 날짜 검증
         validateDates(resolvedDates.startDate(), resolvedDates.endDate(), resolvedDates.expiryDate(), false);
 
@@ -213,13 +206,10 @@ public class CouponService {
             // 상태가 IN_PROGRESS로 변경된 경우에만 알림 전송
             if (newStatus == CouponStatus.IN_PROGRESS) {
 
-                userCouponSubServ.sendAlert(couponId);
+                userCouponSubscribeService.sendAlert(couponId);
             }
         }
-
-        // 쿠폰 업데이트, 사실상 put 방식처럼 작동하도록.. 이게맞나 ?
         updateIfPresent(coupon, requestDto, coupon.getStoreId());
-
         couponRepository.save(coupon);
 
         return new CouponIdResponse(coupon.getId());
@@ -231,12 +221,10 @@ public class CouponService {
     public void deleteCoupon(Long couponId) {
         // 존재하는 쿠폰인지 검증
         Coupon coupon = couponRepository.findByIdOrElseThrow(couponId, ErrorCode.COUPON_NOT_FOUND);
-
         // Store의 소유자가 맞는지 검증 & Store가 존재하는지도 검증
         validateStoreOwnerAndGetStore(coupon.getStoreId());
 
         coupon.delete();
-
         couponRepository.save(coupon);
     }
 
@@ -331,48 +319,8 @@ public class CouponService {
                     new ParameterizedTypeReference<>() {},
                     storeId
             );
-            log.info("response: {}", response);
         } catch (Exception e) {
-            log.error("API 호출 중 오류 발생: {}", e.getMessage());
         }
-    }
-
-
-    // findCouponsByKeyword 실패 시 fallback 메서드
-    public List<CouponSimpleResponse> fallbackFindCouponsByKeyword(CouponStatus status, CouponCursor cursor, int size, Exception e) {
-
-        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
-
-        return couponRepository.findAll()
-                .stream()
-                .map(CouponSimpleResponse::toDto)
-                .collect(Collectors.toList());
-    }
-
-    // findCouponsByStore 실패 시 fallback 메서드
-    public Page<CouponSimpleResponse> fallbackFindCouponsByStore(
-            Long storeId,
-            CouponSearchByStoreRequest requestDto,
-            int size, int page, Exception e) {
-        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
-
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Coupon> couponPage = couponRepository.findByStoreId(storeId, pageable);
-
-        return couponPage.map(CouponSimpleResponse::toDto);
-    }
-
-    // findCoupon 실패 시 fallback 메서드
-    public CouponDetailResponse fallbackFindCoupon(
-            Long couponId,
-            Long userId,
-            Exception e) {
-        log.info("Redis 장애 발생, DB에서 조회: " + e.getMessage());
-
-        Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new ApplicationException(ErrorCode.COUPON_NOT_FOUND));
-
-        return CouponDetailResponse.toDto(coupon);
     }
 
     public List<CouponSimpleResponse> searchWithSafeCursor(

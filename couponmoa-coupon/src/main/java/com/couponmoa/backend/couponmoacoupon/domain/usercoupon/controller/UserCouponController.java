@@ -1,6 +1,5 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.controller;
 
-import com.couponmoa.common.*;
 import com.couponmoa.backend.couponmoacoupon.domain.user.enums.UserRole;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.request.UserCouponRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.dto.response.UserCouponCodeResponse;
@@ -10,8 +9,6 @@ import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.enums.UserCouponS
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service.UserCouponAsyncService;
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service.UserCouponService;
 import com.couponmoa.common.dto.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "사용자 쿠폰 API", description = "쿠폰을 발급받고, 발급받은 쿠폰을 관리할 수 있는 API")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -33,7 +29,6 @@ public class UserCouponController {
     private final UserCouponService userCouponService;
     private final UserCouponAsyncService userCouponAsyncService;
 
-    @Operation(summary = "쿠폰 발급 (동기)")
     @Secured(UserRole.Authority.USER)
     @PostMapping("/v1/coupons/{couponId}/issue")
     public ApiResponse<Void> createUserCouponSync(
@@ -44,7 +39,6 @@ public class UserCouponController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "쿠폰 발급 (비동기)")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @Secured(UserRole.Authority.USER)
     @PostMapping("/v2/coupons/{couponId}/issue")
@@ -56,7 +50,6 @@ public class UserCouponController {
         return ApiResponse.of(HttpStatus.ACCEPTED, "쿠폰 발급 요청이 접수되었습니다.", null);
     }
 
-    @Operation(summary = "발급받은 쿠폰 목록 조회")
     @Secured(UserRole.Authority.USER)
     @GetMapping("/v1/user-coupons")
     public ApiResponse<Page<UserCouponResponse>> findUserCoupons(
@@ -69,7 +62,6 @@ public class UserCouponController {
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "쿠폰 코드 조회")
     @Secured(UserRole.Authority.USER)
     @GetMapping("/v1/user-coupons/{userCouponId}/code")
     public ApiResponse<UserCouponCodeResponse> findUserCouponCode(
@@ -80,7 +72,6 @@ public class UserCouponController {
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "쿠폰 사용 처리")
     @Secured(UserRole.Authority.ADMIN)
     @PostMapping("/v1/user-coupons/use")
     public ApiResponse<UserCouponUseResponse> useUserCoupon(
@@ -91,7 +82,6 @@ public class UserCouponController {
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "발급 쿠폰 만료 알림 전송", description = "만료 알림 조회 및 알림 서버로 전송(스케줄링 서버에서 요청하는 api)")
     @PostMapping("/v1/user-coupons/expire")
     public ResponseEntity<ApiResponse<Void>> NotifyCouponExpire() {
         userCouponService.sendExpireCouponNotifications();

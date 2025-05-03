@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.domain.coupon.controller.v2;
+package com.couponmoa.backend.couponmoacoupon.domain.coupon.controller.v1;
 
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCreateRequest;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.request.CouponCursor;
@@ -8,7 +8,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponDe
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponIdResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
-import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v2.CouponService;
+import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
 import com.couponmoa.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/coupons")
+@RequestMapping("/api/v1/coupons")
 @RequiredArgsConstructor
 @Slf4j
 public class CouponController {
