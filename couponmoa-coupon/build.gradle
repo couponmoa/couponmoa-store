@@ -38,7 +38,7 @@ dependencies {
     implementation 'at.favre.lib:bcrypt:0.10.2'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1'
-    compileProtoPath 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1'
+//    compileProtoPath 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -82,22 +82,21 @@ dependencies {
 
 }
 
-springBoot {
-    mainClass = 'com.couponmoa.backend.couponmoacoupon.CouponmoaCouponApplication'
-}
-
 protobuf {
-    protoc {artifact = "com.google.protobuf:protoc:${protobufVersion}"}
+    protoc { artifact = "com.google.protobuf:protoc:${protobufVersion}" }
     plugins {
-        grpc {artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"}}
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+    }
     generateProtoTasks {
         all().configureEach { task ->
-            task.builtins {java {}}
-            task.plugins {grpc {}}}
+            task.builtins { java {} }
+            task.plugins { grpc {} }
+        }
     }
     configurations {
         compileProtoPath {
-            exclude group: 'io.awspring.cloud', module: 'spring-cloud-aws-starter-sqs'}
+            exclude group: 'io.awspring.cloud', module: 'spring-cloud-aws-starter-sqs'
+        }
     }
 }
 
@@ -157,6 +156,15 @@ tasks.named('test') {
     outputs.dir snippetsDir
 }
 
+task createSnippetsDir {
+    doLast {
+        def snippetsDir = file("build/generated-snippets")
+        if (!snippetsDir.exists()) {
+            snippetsDir.mkdirs()
+        }
+    }
+}
+
 compileJava.dependsOn generateProto
 
 tasks.named('asciidoctor', org.asciidoctor.gradle.jvm.AsciidoctorTask) {
@@ -164,7 +172,7 @@ tasks.named('asciidoctor', org.asciidoctor.gradle.jvm.AsciidoctorTask) {
     baseDirFollowsSourceFile()
     inputs.dir snippetsDir
     attributes 'snippets': snippetsDir
-    dependsOn test
+    dependsOn createSnippetsDir
 }
 
 tasks.named('asciidoctor').configure {
@@ -175,6 +183,7 @@ tasks.named('asciidoctor').configure {
 
 tasks.named('clean') {
     delete rootProject.layout.buildDirectory.dir('generated/querydsl')
+    delete rootProject.layout.buildDirectory.dir('generated-snippets')
 }
 
 tasks.register('copyDocument', Copy) {
@@ -184,5 +193,9 @@ tasks.register('copyDocument', Copy) {
 }
 
 tasks.named('build') {
+    dependsOn tasks.named('copyDocument')
+}
+
+tasks.named('processResources') {
     dependsOn tasks.named('copyDocument')
 }
