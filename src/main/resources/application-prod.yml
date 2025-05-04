@@ -56,7 +56,4 @@ management:
 
 logging:
   level:
-    org.springframework.boot.autoconfigure: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    org.hibernate: DEBUG
     root: DEBUG
