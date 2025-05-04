@@ -30,4 +30,3 @@ public class JacksonConfig {
         System.out.println("🚨 WRITE_DATES_AS_TIMESTAMPS is enabled? " + isTimestamps);
     }
 }
-}
