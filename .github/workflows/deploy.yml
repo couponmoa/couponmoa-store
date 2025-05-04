@@ -87,14 +87,6 @@ jobs:
             --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} \
             --query taskDefinition > task-definition.json
 
-
-      - name: Remove SPRING_PROFILE from task-definition.json
-        run: |
-          cat task-definition.json | jq '.
-            containerDefinitions[0].environment |=
-            map(select(.name != "SPRING_PROFILE"))' > updated-task-definition.json
-          mv updated-task-definition.json task-definition.json
-
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
