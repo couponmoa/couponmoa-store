@@ -52,11 +52,7 @@ app:
 
 logging:
   level:
-    root: DEBUG
-
-#logging:
-#  level:
-#    root: INFO
-#    org.springframework.boot.autoconfigure: DEBUG
-#    com.fasterxml.jackson: DEBUG
-#    com.couponmoa.backend.couponmoacoupon.config.JacksonConfig: DEBUG
+    root: INFO
+    org.springframework.boot.autoconfigure: DEBUG
+    com.fasterxml.jackson: DEBUG
+    com.couponmoa.backend.couponmoacoupon.config.JacksonConfig: DEBUG
