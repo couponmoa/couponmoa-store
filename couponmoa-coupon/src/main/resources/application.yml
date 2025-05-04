@@ -59,3 +59,10 @@ grpc:
 app:
   store:
     alert-url: http://couponmoa-dev-store-service.couponmoa.local:8082/api/v1/stores/{storeId}/alert
+
+logging:
+  level:
+    root: INFO
+    org.springframework.boot.autoconfigure: DEBUG
+    com.fasterxml.jackson: DEBUG
+    com.couponmoa.backend.couponmoacoupon.config.JacksonConfig: DEBUG
