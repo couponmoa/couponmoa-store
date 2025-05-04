@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoastore.domain.store.service.v2;
+package com.couponmoa.backend.couponmoastore.domain.store.service.v1;
 
 import com.couponmoa.backend.couponmoastore.common.exception.ApplicationException;
 import com.couponmoa.backend.couponmoastore.common.exception.ErrorCode;
@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class StoreServiceV2Test {
+public class StoreServiceTest {
 
     @Mock
     private StoreRepository storeRepository;
@@ -41,7 +41,7 @@ public class StoreServiceV2Test {
     private UserGrpcClient userGrpcClient;
 
     @InjectMocks
-    private StoreServiceV2 storeServiceV2;
+    private StoreService storeService;
 
     @Nested
     class createStore {
@@ -51,7 +51,7 @@ public class StoreServiceV2Test {
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.createStore(dto, userId));
+                    () -> storeService.createStore(dto, userId));
             assertEquals(ErrorCode.USER_NOT_FOUND.getHttpStatus(), exception.getStatus());
         }
 
@@ -65,7 +65,7 @@ public class StoreServiceV2Test {
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.createStore(dto, userId));
+                    () -> storeService.createStore(dto, userId));
             assertEquals(ErrorCode.FORBIDDEN_ADMIN_ONLY.getHttpStatus(), exception.getStatus());
         }
 
@@ -81,7 +81,7 @@ public class StoreServiceV2Test {
             given(storeRepository.existsByNameAndDeletedAtIsNull(dto.getName())).willReturn(true);
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.createStore(dto, userId));
+                    () -> storeService.createStore(dto, userId));
             assertEquals(ErrorCode.DUPLICATE_RESOURCE.getHttpStatus(), exception.getStatus());
         }
 
@@ -98,7 +98,7 @@ public class StoreServiceV2Test {
             Store savedStore = new Store(userId, dto.getName(), dto.getDescription(), dto.getAddress());
             given(storeRepository.save(any(Store.class))).willReturn(savedStore);
 
-            StoreResponseDto result = storeServiceV2.createStore(dto, userId);
+            StoreResponseDto result = storeService.createStore(dto, userId);
 
             assertThat(result.getName()).isEqualTo("name");
         }
@@ -112,7 +112,7 @@ public class StoreServiceV2Test {
         List<StoreResponseDto> list = List.of(dto);
         given(storeQueryDslRepository.searchStoresByKeyword(cursor, 1)).willReturn(list);
 
-        storeServiceV2.findStoresByKeyword(cursor, 1);
+        storeService.findStoresByKeyword(cursor, 1);
 
         assertThat(list.get(0).getName()).isEqualTo("name");
     }
@@ -126,7 +126,7 @@ public class StoreServiceV2Test {
                     .willThrow(new ApplicationException(ErrorCode.STORE_NOT_FOUND));
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.findStore(storeId));
+                    () -> storeService.findStore(storeId));
             assertEquals(ErrorCode.STORE_NOT_FOUND.getHttpStatus(), exception.getStatus());
         }
 
@@ -137,7 +137,7 @@ public class StoreServiceV2Test {
             Store store = new Store(userId, "name", "des", "address");
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
 
-            StoreResponseDto result = storeServiceV2.findStore(storeId);
+            StoreResponseDto result = storeService.findStore(storeId);
 
             assertThat(result.getName()).isEqualTo("name");
         }
@@ -153,7 +153,7 @@ public class StoreServiceV2Test {
                     .willThrow(new ApplicationException(ErrorCode.STORE_NOT_FOUND));
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.getStoreById(storeId));
+                    () -> storeService.getStoreById(storeId));
             assertEquals(ErrorCode.STORE_NOT_FOUND.getHttpStatus(), exception.getStatus());
         }
 
@@ -164,7 +164,7 @@ public class StoreServiceV2Test {
             Store store = new Store(userId, "name", "des", "address");
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
 
-            Store result = storeServiceV2.getStoreById(storeId);
+            Store result = storeService.getStoreById(storeId);
 
             assertThat(result.getName()).isEqualTo("name");
         }
@@ -175,7 +175,7 @@ public class StoreServiceV2Test {
         @Test
         void 사용자_조회_실패() {
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.findMyStores(null));
+                    () -> storeService.findMyStores(null));
             assertEquals(ErrorCode.UNAUTHORIZED_ACCESS.getHttpStatus(), exception.getStatus());
         }
 
@@ -187,7 +187,7 @@ public class StoreServiceV2Test {
             List<Store> stores = List.of(store);
             given(storeRepository.findByUserIdAndDeletedAtIsNull(anyLong())).willReturn(stores);
 
-            List<StoreResponseDto> result = storeServiceV2.findMyStores(userId);
+            List<StoreResponseDto> result = storeService.findMyStores(userId);
 
             assertThat(result.get(0).getName()).isEqualTo("name");
         }
@@ -198,7 +198,7 @@ public class StoreServiceV2Test {
         @Test
         void 사용자_조회_실패() {
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.findMySimpleStores(null));
+                    () -> storeService.findMySimpleStores(null));
             assertEquals(ErrorCode.UNAUTHORIZED_ACCESS.getHttpStatus(), exception.getStatus());
         }
 
@@ -209,7 +209,7 @@ public class StoreServiceV2Test {
             List<Store> stores = List.of(store);
             given(storeRepository.findByUserIdAndDeletedAtIsNull(anyLong())).willReturn(stores);
 
-            List<StoreSimpleResponse> result = storeServiceV2.findMySimpleStores(userId);
+            List<StoreSimpleResponse> result = storeService.findMySimpleStores(userId);
 
             assertThat(result.get(0).getName()).isEqualTo("name");
         }
@@ -228,7 +228,7 @@ public class StoreServiceV2Test {
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.updateStore(storeId, dto, userId));
+                    () -> storeService.updateStore(storeId, dto, userId));
             assertEquals(ErrorCode.FORBIDDEN_ADMIN_ONLY.getHttpStatus(), exception.getStatus());
         }
 
@@ -245,7 +245,7 @@ public class StoreServiceV2Test {
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.updateStore(storeId, dto, userId));
+                    () -> storeService.updateStore(storeId, dto, userId));
             assertEquals(ErrorCode.STORE_NOT_FOUND.getHttpStatus(), exception.getStatus());
         }
 
@@ -261,7 +261,7 @@ public class StoreServiceV2Test {
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.updateStore(storeId, dto, userId));
+                    () -> storeService.updateStore(storeId, dto, userId));
             assertEquals(ErrorCode.FORBIDDEN_ADMIN_ONLY.getHttpStatus(), exception.getStatus());
         }
 
@@ -276,7 +276,7 @@ public class StoreServiceV2Test {
 
             StoreRequestDto dto = new StoreRequestDto("name", "desc", "address");
 
-            StoreResponseDto result = storeServiceV2.updateStore(storeId, dto, userId);
+            StoreResponseDto result = storeService.updateStore(storeId, dto, userId);
 
             assertThat(result.getName()).isEqualTo("name");
         }
@@ -293,7 +293,7 @@ public class StoreServiceV2Test {
             given(userGrpcClient.getUserById(anyLong())).willReturn(response);
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.deleteStore(storeId, userId));
+                    () -> storeService.deleteStore(storeId, userId));
             assertEquals(ErrorCode.FORBIDDEN_ADMIN_ONLY.getHttpStatus(), exception.getStatus());
         }
 
@@ -308,7 +308,7 @@ public class StoreServiceV2Test {
                     .willThrow(new ApplicationException(ErrorCode.STORE_NOT_FOUND));
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.deleteStore(storeId, userId));
+                    () -> storeService.deleteStore(storeId, userId));
             assertEquals(ErrorCode.STORE_NOT_FOUND.getHttpStatus(), exception.getStatus());
         }
 
@@ -322,7 +322,7 @@ public class StoreServiceV2Test {
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.deleteStore(storeId, userId));
+                    () -> storeService.deleteStore(storeId, userId));
             assertEquals(ErrorCode.FORBIDDEN_ADMIN_ONLY.getHttpStatus(), exception.getStatus());
         }
 
@@ -337,7 +337,7 @@ public class StoreServiceV2Test {
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
 
             ApplicationException exception = assertThrows(ApplicationException.class,
-                    () -> storeServiceV2.deleteStore(storeId, userId));
+                    () -> storeService.deleteStore(storeId, userId));
             assertEquals(ErrorCode.ALREADY_DELETED.getHttpStatus(), exception.getStatus());
         }
 
@@ -350,7 +350,7 @@ public class StoreServiceV2Test {
             given(userGrpcClient.getUserById(anyLong())).willReturn(response);
             given(storeRepository.findByIdOrElseThrow(anyLong(), any(ErrorCode.class))).willReturn(store);
 
-            storeServiceV2.deleteStore(storeId, userId);
+            storeService.deleteStore(storeId, userId);
 
             assertNotNull(store.getDeletedAt());
         }
