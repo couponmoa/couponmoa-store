@@ -108,13 +108,8 @@ jobs:
           task-definition: task-definition.json
           container-name: couponmoa-dev-store-container
           image: ${{ steps.build_image.outputs.built_image_tag }}
-          environment-variables: |
-            RDS_URL=${{ secrets.RDS_URL }} 
-            ,RDS_USERNAME=${{ secrets.RDS_USERNAME }} 
-            ,RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}
-            ,REDIS_HOST=${{ secrets.REDIS_HOST }}
-            ,JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-            ,SPRING_PROFILE=${{ env.SPRING_PROFILE }}
+          environment-variables: >
+            RDS_URL=${{ secrets.RDS_URL }},RDS_USERNAME=${{ secrets.RDS_USERNAME }},RDS_PASSWORD=${{ secrets.RDS_PASSWORD }},REDIS_HOST=${{ secrets.REDIS_HOST }},JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }},SPRING_PROFILE=${{ env.SPRING_PROFILE }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
