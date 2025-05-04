@@ -6,6 +6,7 @@ import com.couponmoa.backend.couponmoastore.domain.store.dto.request.StoreReques
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreResponseDto;
 import com.couponmoa.backend.couponmoastore.domain.store.dto.response.StoreSimpleResponse;
 import com.couponmoa.backend.couponmoastore.domain.store.service.v1.StoreService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @WebMvcTest(StoreController.class)
 @Import(TestSecurityConfig.class)
-public class StoreControllerTest {
+public class StoreControllerTest extends TestContainerBase {
 
     @Autowired
     private MockMvc mockMvc;

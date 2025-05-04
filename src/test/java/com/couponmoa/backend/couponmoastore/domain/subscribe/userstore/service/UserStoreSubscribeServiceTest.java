@@ -10,6 +10,7 @@ import com.couponmoa.backend.couponmoastore.domain.store.repository.StoreReposit
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.dto.response.FindStoreSubscribeListResponse;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.entity.UserStoreSubscribe;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.repository.UserStoreSubscribeRepository;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import com.couponmoa.grpc.user.UserResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserStoreSubscribeServiceTest {
+public class UserStoreSubscribeServiceTest extends TestContainerBase {
 
     @Mock
     private UserGrpcClient userGrpcClient;

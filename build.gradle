@@ -4,6 +4,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.google.protobuf' version '0.9.4'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    // common 분리 시 삭제
+    id 'java-test-fixtures'
 }
 
 group = 'com.couponmoa.backend'
@@ -72,9 +74,6 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
-    // H2 test DB
-    testImplementation 'com.h2database:h2'
-
     // Spring Boot Configuration Processor
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -103,6 +102,29 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // testContainer - common 나중에 testFixturesImplementation
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter' // JUnit 5 사용 시
+    testImplementation 'org.testcontainers:mysql'
+    testImplementation 'com.mysql:mysql-connector-j'
+
+    // testContainer와 사용되는 Spring Boot 기능을 위해 필요 -common 나중에 testFixturesImplementation
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
+
+    // testFixtures에서 Spring 테스트 기능을 사용하기 위한 의존성 common 나중에
+    testFixturesImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // testFixtures에서 Testcontainers를 사용하기 위한 의존성 common 나중에
+    testFixturesImplementation 'org.testcontainers:testcontainers'
+    testFixturesImplementation 'org.testcontainers:junit-jupiter'
+    testFixturesImplementation 'org.testcontainers:mysql'
+
+    // common 분리시 삭제 (testContainer)
+    testImplementation testFixtures(project(':'))
 }
 
 protobuf {
