@@ -18,6 +18,7 @@ env:
   ECS_STORE_TASK_DEFINITION_FAMILY: ${{ secrets.ECS_STORE_TASK_DEFINITION_FAMILY }}
   ECS_STORE_SERVICE_NAME: ${{ secrets.ECS_STORE_SERVICE_NAME }}
   ECS_CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
+  SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
 
 jobs:
   deploy:
@@ -86,6 +87,14 @@ jobs:
             --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} \
             --query taskDefinition > task-definition.json
 
+
+      - name: Remove SPRING_PROFILE from task-definition.json
+        run: |
+          jq '.
+            containerDefinitions[0].environment |=
+            map(select(.name != "SPRING_PROFILE"))' task-definition.json > updated-task-definition.json
+          mv updated-task-definition.json task-definition.json
+
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -99,6 +108,8 @@ jobs:
             RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
