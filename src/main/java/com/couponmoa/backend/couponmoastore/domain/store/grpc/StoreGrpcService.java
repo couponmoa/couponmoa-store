@@ -1,7 +1,7 @@
 package com.couponmoa.backend.couponmoastore.domain.store.grpc;
 
 import com.couponmoa.backend.couponmoastore.domain.store.entity.Store;
-import com.couponmoa.backend.couponmoastore.domain.store.service.v2.StoreServiceV2;
+import com.couponmoa.backend.couponmoastore.domain.store.service.v1.StoreService;
 import com.couponmoa.backend.couponmoastore.domain.subscribe.userstore.service.UserStoreSubscribeService;
 import com.couponmoa.grpc.store.EmailListResponse;
 import com.couponmoa.grpc.store.StoreIdRequest;
@@ -14,17 +14,17 @@ import java.util.List;
 
 @GrpcService
 public class StoreGrpcService extends StoreServiceGrpc.StoreServiceImplBase {
-    private final StoreServiceV2 storeServiceV2;
+    private final StoreService storeServiceV1;
     private final UserStoreSubscribeService storeSubServ;
 
-    public StoreGrpcService(StoreServiceV2 storeServiceV2, UserStoreSubscribeService storeSubServ) {
-        this.storeServiceV2 = storeServiceV2;
+    public StoreGrpcService(StoreService storeServiceV1, UserStoreSubscribeService storeSubServ) {
+        this.storeServiceV1 = storeServiceV1;
         this.storeSubServ = storeSubServ;
     }
 
     @Override
     public void findById(StoreIdRequest request, StreamObserver<StoreResponse> responseObserver) {
-        Store store = storeServiceV2.getStoreById(request.getStoreId());
+        Store store = storeServiceV1.getStoreById(request.getStoreId());
 
         StoreResponse.Builder responseBuilder = StoreResponse.newBuilder()
                 .setId(store.getId())

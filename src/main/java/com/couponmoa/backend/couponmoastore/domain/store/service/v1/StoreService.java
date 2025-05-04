@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoastore.domain.store.service.v2;
+package com.couponmoa.backend.couponmoastore.domain.store.service.v1;
 
 
 import com.couponmoa.backend.couponmoastore.common.exception.ApplicationException;
@@ -29,7 +29,7 @@ import static com.couponmoa.backend.couponmoastore.common.exception.ErrorCode.US
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StoreServiceV2 {
+public class StoreService {
 
     private final StoreRepository storeRepository;
     private final StoreQueryDslRepository storeQueryDslRepository;
