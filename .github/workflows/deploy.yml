@@ -101,8 +101,6 @@ jobs:
             RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
-
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
