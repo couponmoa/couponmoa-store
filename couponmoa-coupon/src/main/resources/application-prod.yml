@@ -13,6 +13,9 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
   cloud:
     aws:
