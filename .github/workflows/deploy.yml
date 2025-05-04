@@ -5,15 +5,20 @@ on:
     branches:
       - dev
 
-permissions:
-  contents: read
-  id-token: write
-
 env:
   AWS_REGION: ap-northeast-2
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   SPRING_PROFILE: prod
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+  REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  RDS_URL: ${{ secrets.RDS_URL }}
+  RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+  RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  ECR_REPOSITORY: couponmoa-dev-store-ecr
+  ECS_STORE_TASK_DEFINITION_FAMILY: ${{ secrets.ECS_STORE_TASK_DEFINITION_FAMILY }}
+  ECS_STORE_SERVICE_NAME: ${{ secrets.ECS_STORE_SERVICE_NAME }}
+  ECS_CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
+
 
 jobs:
   deploy:
@@ -30,15 +35,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Create application-prod.yml
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle (after creating yml)
+      - name: Build with Gradle
         run: ./gradlew generateProto build -x test -x asciidoctor
 
       - name: Set up Docker
@@ -52,22 +62,58 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, Tag, and Push Docker image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: couponmoa-dev-store-ecr
-          IMAGE_TAG: latest
+        id: build_image
+        shell: bash
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # 이미지 태그로 커밋 SHA 사용 (coupon workflow 방식)
+          IMAGE_TAG=${{ github.sha }}
+          # env 블록에서 ECR 관련 정보 사용
+          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          ECR_REPOSITORY="${{ env.ECR_REPOSITORY }}"
+          REGION="${{ env.AWS_REGION }}"
 
-      - name: Force new deployment to ECS
+          FULL_IMAGE_TAG="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+          echo "Attempting to build image with tag: ${FULL_IMAGE_TAG}"
+          # Dockerfile이 프로젝트 루트에 있다고 가정
+          # 애플리케이션이 환경 변수에서 설정을 읽도록 구성되어 있어야 합니다.
+          docker build -t "${FULL_IMAGE_TAG}" -f ./Dockerfile .
+
+          echo "built_image_tag=${FULL_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Push to ECR
+        shell: bash
         run: |
-          aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-            --service ${{ secrets.ECS_SERVICE_NAME }} \
-            --force-new-deployment \
-            --region ap-northeast-2
+          # build_image 스텝의 출력에서 이미지 태그 가져오기
+          IMAGE_TAG="${{ steps.build_image.outputs.built_image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            echo "❌ Docker image tag is empty. Build step might have failed."
+            exit 1
+          fi
+          echo "Pushing image: $IMAGE_TAG"
+          docker push "$IMAGE_TAG"
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_STORE_TASK_DEFINITION_FAMILY }} \
+            --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: couponmoa-dev-store-container
+          image: ${{ steps.build_image.outputs.built_image_tag }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_STORE_SERVICE_NAME }}
+          cluster: ${{ env.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
