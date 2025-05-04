@@ -50,7 +50,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew generateProto build -x test -x asciidoctor
+        run: ./gradlew generateProto build -x test -x asciidoctor --stacktrace
 
       - name: Echo DB config
         run: |
