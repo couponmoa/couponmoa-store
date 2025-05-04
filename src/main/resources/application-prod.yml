@@ -1,0 +1,55 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: couponmoa
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+  datasource:
+    url: jdbc:mysql://${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cache:
+    type: redis
+    redis:
+      time-to-live: 900000
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      s3:
+        bucket: couponmoa-store-prod
+
+grpc:
+  client:
+    user-service:
+      address: static://couponmoa-dev-user-service.couponmoa.local:6565
+      negotiation-type: plaintext
+    coupon-service:
+      address: static://couponmoa-dev-coupon-service.couponmoa.local:6565
+      negotiation-type: plaintext
+  server:
+    port: 6565
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  server:
+    port: 9090
+
+logging:
+  level:
+    root: INFO
