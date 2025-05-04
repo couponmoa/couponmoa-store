@@ -42,7 +42,7 @@ management:
         include: health, prometheus
   metrics:
     tags:
-      application: ${spring.application.name} # 각 서비스 이름 자동 적용
+      application: ${spring.application.name}
   server:
     port: 9090
 
@@ -52,5 +52,7 @@ app:
 
 logging:
   level:
-    com.couponmoa.backend.couponmoacoupon.config: DEBUG
-    org.springframework.security: DEBUG
+    root: INFO
+    org.springframework.boot.autoconfigure: DEBUG
+    com.fasterxml.jackson: DEBUG
+    com.couponmoa.backend.couponmoacoupon.config.JacksonConfig: DEBUG
