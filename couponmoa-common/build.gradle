@@ -79,6 +79,9 @@ dependencies {
     testFixturesImplementation 'org.springframework:spring-test'
     testFixturesCompileOnly 'org.projectlombok:lombok'
     testFixturesAnnotationProcessor 'org.projectlombok:lombok'
+
+    // json 매퍼
+    implementation 'org.springframework.boot:spring-boot-starter-json'
 }
 
 jar {
