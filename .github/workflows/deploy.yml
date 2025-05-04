@@ -7,6 +7,8 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   SPRING_PROFILE: prod
   JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
   REDIS_HOST: ${{ secrets.REDIS_HOST }}
@@ -18,7 +20,6 @@ env:
   ECS_STORE_TASK_DEFINITION_FAMILY: ${{ secrets.ECS_STORE_TASK_DEFINITION_FAMILY }}
   ECS_STORE_SERVICE_NAME: ${{ secrets.ECS_STORE_SERVICE_NAME }}
   ECS_CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
-
 
 jobs:
   deploy:
@@ -98,7 +99,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition ${{ secrets.ECS_TASK_DEFINITION_FAMILY }} \
+            --task-definition ${{ secrets.ECS_STORE_TASK_DEFINITION_FAMILY }} \
             --query taskDefinition > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
