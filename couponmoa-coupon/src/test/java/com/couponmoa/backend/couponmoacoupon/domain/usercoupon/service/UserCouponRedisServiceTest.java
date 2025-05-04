@@ -1,5 +1,6 @@
 package com.couponmoa.backend.couponmoacoupon.domain.usercoupon.service;
 
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserCouponRedisServiceTest {
+class UserCouponRedisServiceTest extends TestContainerBase {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;

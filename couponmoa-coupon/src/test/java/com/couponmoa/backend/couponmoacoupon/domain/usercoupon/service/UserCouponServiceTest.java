@@ -18,6 +18,7 @@ import com.couponmoa.common.exception.ApplicationException;
 import com.couponmoa.common.exception.ErrorCode;
 import com.couponmoa.common.sqssender.enums.QueueType;
 import com.couponmoa.common.sqssender.service.SqsService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import com.couponmoa.grpc.store.StoreResponse;
 import org.jobrunr.jobs.lambdas.JobLambda;
 import org.jobrunr.scheduling.JobScheduler;
@@ -43,7 +44,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserCouponServiceTest {
+class UserCouponServiceTest extends TestContainerBase {
 
     @Mock
     private CouponRepository couponRepository;

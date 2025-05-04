@@ -3,6 +3,7 @@ package com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.contro
 import com.couponmoa.backend.couponmoacoupon.config.TestSecurityConfig;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.dto.response.FindCouponSubscribeListResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @WebMvcTest(UserCouponSubscribeController.class)
 @Import(TestSecurityConfig.class)
-class UserCouponSubscribeControllerTest {
+class UserCouponSubscribeControllerTest extends TestContainerBase {
 
     @Autowired
     private MockMvc mockMvc;

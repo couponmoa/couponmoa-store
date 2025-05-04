@@ -15,6 +15,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.repository.CouponRepo
 import com.couponmoa.backend.couponmoacoupon.domain.subscribe.usercoupon.service.UserCouponSubscribeService;
 import com.couponmoa.common.exception.ApplicationException;
 import com.couponmoa.common.exception.ErrorCode;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import com.couponmoa.grpc.store.StoreResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class CouponServiceTest {
+class CouponServiceTest extends TestContainerBase {
 
     @Mock
     private CouponRepository couponRepository;

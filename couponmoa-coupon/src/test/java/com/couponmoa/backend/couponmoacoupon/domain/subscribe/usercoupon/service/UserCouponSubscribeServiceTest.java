@@ -10,6 +10,7 @@ import com.couponmoa.common.exception.ApplicationException;
 import com.couponmoa.common.exception.ErrorCode;
 import com.couponmoa.common.sqssender.dto.CouponCreateDto;
 import com.couponmoa.common.sqssender.service.SqsService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserCouponSubscribeServiceTest {
+class UserCouponSubscribeServiceTest extends TestContainerBase {
 
     @Mock
     private CouponRepository couponRepository;

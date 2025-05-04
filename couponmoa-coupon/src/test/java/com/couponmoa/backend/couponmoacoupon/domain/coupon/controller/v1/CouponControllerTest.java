@@ -9,6 +9,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponId
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.dto.response.CouponSimpleResponse;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.enums.CouponStatus;
 import com.couponmoa.backend.couponmoacoupon.domain.coupon.service.v1.CouponService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @WebMvcTest(CouponController.class)
 @Import(TestSecurityConfig.class)
-class CouponControllerTest {
+class CouponControllerTest extends TestContainerBase {
 
     @Autowired
     private MockMvc mockMvc;

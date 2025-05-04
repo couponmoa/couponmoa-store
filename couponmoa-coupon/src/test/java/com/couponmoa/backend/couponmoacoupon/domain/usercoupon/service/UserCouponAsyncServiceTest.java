@@ -8,6 +8,7 @@ import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.entity.UserCoupon
 import com.couponmoa.backend.couponmoacoupon.domain.usercoupon.repository.UserCouponRepository;
 import com.couponmoa.common.sqssender.enums.QueueType;
 import com.couponmoa.common.sqssender.service.SqsService;
+import com.couponmoa.common.testcontainers.TestContainerBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserCouponAsyncServiceTest {
+class UserCouponAsyncServiceTest extends TestContainerBase {
 
     @Mock
     private CouponRepository couponRepository;
