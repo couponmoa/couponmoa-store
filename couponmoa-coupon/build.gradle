@@ -76,6 +76,16 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:mysql'
 
+    implementation 'org.slf4j:slf4j-api'
+
+    implementation('com.amazonaws:aws-java-sdk-s3:1.12.653') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    implementation('io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
 //    //elastic search
 //    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 //    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.12.0'

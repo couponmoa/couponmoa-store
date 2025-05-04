@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CouponSimpleResponse implements Serializable {// implements Serializable 캐싱을 위해 Redis에 객체를 저장할 때, 직렬화 필요
+public class CouponSimpleResponse implements Serializable {
     private Long id;
     private String name;
     private BigDecimal discountAmount;

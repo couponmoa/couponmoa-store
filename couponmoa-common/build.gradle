@@ -82,6 +82,14 @@ dependencies {
 
     // json 매퍼
     implementation 'org.springframework.boot:spring-boot-starter-json'
+
+    implementation('com.amazonaws:aws-java-sdk-s3:1.12.653') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    implementation('io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 }
 
 jar {
