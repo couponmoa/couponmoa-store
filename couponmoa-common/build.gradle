@@ -72,6 +72,7 @@ dependencies {
     testFixturesImplementation 'org.testcontainers:junit-jupiter'
     testFixturesImplementation 'mysql:mysql-connector-java:8.0.28'
     testFixturesImplementation 'org.testcontainers:testcontainers'
+    testImplementation "org.testcontainers:mysql:+"
 
     // Spring Boot Test Autoconfigure (Testcontainers와 함께 사용될 Spring Boot 기능을 위해 필요)
     testFixturesImplementation 'org.springframework.boot:spring-boot-autoconfigure'
