@@ -71,11 +71,10 @@ jobs:
           # 이미지 태그로 커밋 SHA 사용 (coupon workflow 방식)
           IMAGE_TAG=${{ github.sha }}
           # env 블록에서 ECR 관련 정보 사용
-          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
-          ECR_REPOSITORY="${{ env.ECR_REPOSITORY }}"
+          ECR_REPO="${{ secrets.ECR_REPOSITORY }}"
           REGION="${{ env.AWS_REGION }}"
 
-          FULL_IMAGE_TAG="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          FULL_IMAGE_TAG="${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
 
           echo "Attempting to build image with tag: ${FULL_IMAGE_TAG}"
           # Dockerfile이 프로젝트 루트에 있다고 가정
