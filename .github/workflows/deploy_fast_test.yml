@@ -42,18 +42,19 @@ jobs:
 
       # Docker 빌드 및 테스트 작업
       - name: Build Docker image
-        if: matrix.task == 'build'
         id: build_image
-        shell: bash
+        shell: bash # <-- Bash 쉘 사용
         run: |
           IMAGE_TAG=${{ github.sha }}
+          
           AWS_ACCOUNT_ID="${{ secrets.AWS_ACCOUNT_ID }}"
           ECR_REPO="${{ secrets.ECR_REPOSITORY }}"
-          REGION="${env.AWS_REGION}"
+          REGION="${AWS_REGION}" # <-- 여기서 env.AWS_REGION 대신 AWS_REGION으로 변경
           
           FULL_IMAGE_TAG="${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
           
           echo "Attempting to build image with tag: ${FULL_IMAGE_TAG}"
+          
           docker build -t "${FULL_IMAGE_TAG}" -f ./Dockerfile .
           
           echo "built_image_tag=${FULL_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
