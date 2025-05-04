@@ -1,3 +1,4 @@
 spring:
-  profiles:
-    active: local
+  config:
+    activate:
+      on-profile: default
