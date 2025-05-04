@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk
+FROM temurin:17-jdk
 
 ARG JAR_FILE=couponmoa-coupon/build/libs/couponmoa-coupon-0.0.1-SNAPSHOT.jar
 
