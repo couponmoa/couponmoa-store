@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/couponmoa-common" />
-            <option value="$PROJECT_DIR$/couponmoa-coupon" />
+            <option value="$PROJECT_DIR$/couponmoa-store" />
           </set>
         </option>
       </GradleProjectSettings>

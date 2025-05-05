@@ -43,6 +43,7 @@ public enum ErrorCode {
     // store
     STORE_NOT_FOUND(NOT_FOUND, "존재하지 않는 스토어 입니다."),
     NOT_VALIDATE_STORE_OWNER(UNAUTHORIZED,"남의 스토어를 건들지 마라" ),
+    DUPLICATED_USER_STORE(BAD_REQUEST, "이미 구독한 스토어 입니다."),
 
     // coupon
     DISCOUNT_REQUIRED(BAD_REQUEST, "할인 금액과 할인율 중 하나는 설정되어야 합니다." ),

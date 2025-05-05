@@ -1,4 +1,4 @@
-package com.couponmoa.backend.couponmoacoupon.config;
+package com.couponmoa.common.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

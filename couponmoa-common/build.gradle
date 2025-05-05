@@ -3,6 +3,12 @@ plugins {
     id 'java-test-fixtures'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }

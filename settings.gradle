@@ -5,7 +5,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'couponmoa-backend'
+rootProject.name = 'couponmoa-backend2'
 
 include("couponmoa-common")
-include("couponmoa-coupon")
+include("couponmoa-store")
