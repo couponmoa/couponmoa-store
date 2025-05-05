@@ -10,10 +10,8 @@ spring:
       port: 6379
   datasource:
     url: jdbc:mysql://couponmoa-dev-mysql.c3cigay486zz.ap-northeast-2.rds.amazonaws.com:3306/couponmoa
-#    username: ${RDS_USERNAME}
-    username: root
-#    password: ${RDS_PASSWORD}
-    password: couponmoaRDS1234!
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   cache:
     type: redis
