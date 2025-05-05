@@ -2,3 +2,9 @@ spring:
   config:
     activate:
       on-profile: default
+
+  datasource:
+    url: jdbc:mysql://couponmoa-dev-mysql.c3cigay486zz.ap-northeast-2.rds.amazonaws.com:3306/couponmoa
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
