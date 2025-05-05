@@ -51,6 +51,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew generateProto build -x test -x asciidoctor --debug
 
+      - name: Check if application-prod.yml is included in the JAR
+        run: |
+          echo "🔍 Checking JAR for application-prod.yml..."
+          JAR_PATH=$(find build/libs -name "*.jar" | head -n 1)
+          echo "Found JAR: $JAR_PATH"
+          jar tf "$JAR_PATH" | grep 'application-prod.yml' || echo "❌ application-prod.yml not found in JAR!"
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
